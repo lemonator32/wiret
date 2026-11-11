@@ -51,7 +51,8 @@ typedef enum { WR_OK = 0, WR_YIELD, WR_ERR_FAULT, WR_ERR_FUEL, WR_ERR_MEM,
 typedef enum { WR_T_NULL, WR_T_BOOL, WR_T_I32, WR_T_I64, WR_T_F32, WR_T_F64,
                WR_T_STRING, WR_T_STRUCT, WR_T_CLASS, WR_T_ARRAY, WR_T_MAP, WR_T_SET,
                WR_T_DELEGATE, WR_T_DISPATCHER, WR_T_HOST, WR_T_SIGNAL,
-               WR_T_FAULT } wr_Type;
+               WR_T_FAULT, WR_T_VEC2, WR_T_VEC3, WR_T_QUAT,
+               WR_T_TRANSFORM } wr_Type;   /* new values are appended, never inserted */
 
 typedef void *(*wr_AllocFn)(void *ud, void *ptr, size_t old_size, size_t new_size);
 typedef int   (*wr_NativeFn)(wr_Fiber *f, void *ud);
@@ -128,7 +129,7 @@ void      wr_module_each_capability(wr_Module *m, void (*fn)(const char *cap, vo
 wr_Status wr_link(wr_Vm *vm);     /* resolve imports left pending by WR_LOAD_LAZY_LINK */
 ```
 
-An import whose capability is not granted fails the load with `WR_ERR_LINK`, naming the capability. Imports between Wiret modules are resolved against the exports of modules already loaded, then against natives (section 7.3). To load modules that depend on each other in any order, pass `WR_LOAD_LAZY_LINK` to each and call `wr_link` once.
+An import whose capability is not granted fails the load with `WR_ERR_LINK`, naming the capability. `wr.caps` lists the capabilities of the imports the module uses, not those of `extern` declarations it never calls. A host may also register a native together with the capability it requires; an import of that native then needs the grant whether or not its source declares the capability, so a module cannot reach it by leaving the attribute off. Imports between Wiret modules are resolved against the exports of modules already loaded, then against natives (section 7.3). To load modules that depend on each other in any order, pass `WR_LOAD_LAZY_LINK` to each and call `wr_link` once.
 
 ### 6.6 Natives and host types
 
@@ -172,7 +173,7 @@ void wr_replace(wr_Fiber *f, int idx);
 int  wr_checkstack(wr_Fiber *f, int extra);          /* 0 if it cannot grow */
 
 wr_Type     wr_type(wr_Fiber *f, int idx);
-const char *wr_typename(wr_Fiber *f, int idx);       /* "i32", "game.demo.Player", "array<i32>" */
+const char *wr_typename(wr_Fiber *f, int idx);       /* "i32", "game.demo.Player", "array::<i32>" */
 
 void wr_push_bool(wr_Fiber *f, int b);    void wr_push_i32(wr_Fiber *f, int32_t v);
 void wr_push_i64(wr_Fiber *f, int64_t v); void wr_push_f32(wr_Fiber *f, float v);
@@ -185,14 +186,24 @@ int         wr_to_bool(wr_Fiber *f, int idx);       int32_t wr_to_i32(wr_Fiber *
 int64_t     wr_to_i64(wr_Fiber *f, int idx);        float   wr_to_f32(wr_Fiber *f, int idx);
 double      wr_to_f64(wr_Fiber *f, int idx);
 const char *wr_to_string(wr_Fiber *f, int idx, size_t *len);   /* valid while on the stack */
+
+typedef struct { float x, y; } wr_Vec2;
+typedef struct { float x, y, z; } wr_Vec3;
+typedef struct { float x, y, z, w; } wr_Quat;
+typedef struct { wr_Vec3 translation; wr_Quat rotation; wr_Vec3 scale; } wr_Transform;
+
+void wr_push_vec2(wr_Fiber *f, wr_Vec2 v);    void wr_push_vec3(wr_Fiber *f, wr_Vec3 v);
+void wr_push_quat(wr_Fiber *f, wr_Quat q);    void wr_push_transform(wr_Fiber *f, const wr_Transform *t);
+wr_Vec2 wr_to_vec2(wr_Fiber *f, int idx);     wr_Vec3 wr_to_vec3(wr_Fiber *f, int idx);
+wr_Quat wr_to_quat(wr_Fiber *f, int idx);     void    wr_to_transform(wr_Fiber *f, int idx, wr_Transform *out);
 ```
 
-The `wr_to_*` functions return 0 or NULL when the slot has another type; use `wr_type` to branch. Narrow integer parameters (`u8`, `i16`, ...) are pushed and read as `i32`.
+The `wr_to_*` functions return 0 or NULL when the slot has another type, and the lane functions the type's default (section 3.1.1); use `wr_type` to branch. The lane structs are plain `float` fields in field order, the layout of Godot's `Vector2`, `Vector3` and `Quaternion` (in single-precision builds) and of Unity's `Vector2`, `Vector3` and `Quaternion`, so a binding can copy them field for field; Unreal's `FVector` and `FQuat` hold `double` since Unreal Engine 5 and are narrowed at the boundary. Narrow integer parameters (`u8`, `i16`, ...) are pushed and read as `i32`.
 
 **Objects and containers.** All look-ups are by name and return `wr_Status`.
 
 ```c
-wr_Status wr_push_new(wr_Fiber *f, wr_Module *m, const char *type);  /* class, struct or "array<i32>" ... */
+wr_Status wr_push_new(wr_Fiber *f, wr_Module *m, const char *type);  /* class, struct or "array::<i32>" ... */
 wr_Status wr_getfield(wr_Fiber *f, int idx, const char *field);      /* pushes the field */
 wr_Status wr_setfield(wr_Fiber *f, int idx, const char *field);      /* pops a value; a struct slot is replaced by the updated copy */
 
@@ -226,7 +237,7 @@ void      wr_signal_fire(wr_Vm *vm, int signal_ref);       /* wake fibers awaiti
 
 Calling protocol, as in Lua: push the function, push the arguments left to right, call. `wr_call` pops the function and arguments. On `WR_OK` it pushes `nresults` results (or all of them for `WR_MULTRET`). On `WR_YIELD` the fiber is suspended; when the scheduler later finishes it (`wr_fiber_status` becomes `WR_FIBER_DONE`) the results are on that fiber's stack. A fiber runs one call at a time; reuse it after it is `DONE` by clearing its stack with `wr_settop(f, 0)`.
 
-`wr_advance` is deterministic. It adds `dt` to the virtual clock, wakes timers whose time has come (ordered by wake time, then by fiber creation order), and runs each woken or queued fiber until it suspends again or finishes. Each run gets `default_fuel`. A fault in a detached fiber is passed to `on_fault`.
+`wr_advance` is deterministic. It adds `dt` to the virtual clock, wakes timers whose time has come, and runs each woken or queued fiber until it suspends again or finishes, in the order of section 4.5. `wr_signal_fire` only makes the waiting fibers runnable; they run on the next `wr_advance`. Each run gets `default_fuel`. A fault in a detached fiber is passed to `on_fault`.
 
 Latency is part of a function's contract (section 4.5). `wr_call` on an export that is **not** flagged `WR_EXPORT_LATENT` returns `WR_OK` or an error and never `WR_YIELD`. Only latent exports and events can suspend, and a host that calls one with `wr_call` must be prepared for `WR_YIELD`.
 
@@ -242,7 +253,7 @@ typedef struct wr_Frame {
 typedef struct wr_FaultInfo {
   size_t      struct_size;   /* set by the caller before the call */
   wr_Status   status;     /* WR_ERR_FAULT, WR_ERR_FUEL, ... */
-  int32_t     code;       /* from Throw, or a built-in fault code */
+  int32_t     code;       /* from Throw, or a built-in fault code (negative, section 4.6) */
   const char *message;    /* valid until the fiber's next call */
   int         nframes;
 } wr_FaultInfo;

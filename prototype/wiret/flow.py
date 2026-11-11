@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from .checker import GraphInfo
 from .model import Graph, Module, PinRef
-from .printer import IND, fmt_graph, fmt_node, print_module
+from .printer import IND, fmt_graph, print_module
 from .registry import ModuleIndex
 
 
@@ -41,19 +41,15 @@ def flow_order(g: Graph, info: GraphInfo) -> list:
 
 
 def view_flow(m: Module) -> str:
-    """The canonical text with every graph's nodes re-ordered into flow order."""
+    """The canonical text with every graph's node statements and `flow` wires in flow order."""
     idx = ModuleIndex(m)
     canonical = print_module(m)
     out = []
     for g in m.graphs():
         info = GraphInfo(g, idx)
-        lines = fmt_graph(g, idx)
-        flowed = [fmt_node(info.nodes[nid], info.sigs[nid], IND) for nid in flow_order(g, info)]
-        node_lines = [l for l in lines if l.startswith(IND + "node ")]
-        if node_lines:
-            start = lines.index(node_lines[0])
-            lines[start:start + len(node_lines)] = flowed
-        out.append((("\n".join(fmt_graph(g, idx))), "\n".join(lines)))
+        outer = IND if g.owner else ""      # a method is printed inside its class
+        before = "\n".join(fmt_graph(g, idx, outer))
+        out.append((before, "\n".join(fmt_graph(g, idx, outer, order=flow_order(g, info)))))
     for before, after in out:
         canonical = canonical.replace(before, after, 1)
     return canonical
