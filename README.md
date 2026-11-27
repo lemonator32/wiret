@@ -94,7 +94,11 @@ for every canvas edit and context menu (see [Tests](#tests)).
 
 ### Running it
 
+The bytecode runtime is Rust (see [The runtime](#the-runtime-rust)), so every target needs
+[Rust](https://rustup.rs) with the WebAssembly target:
+
 ```sh
+rustup target add wasm32-unknown-unknown
 npm install
 npm run dev                  # the editor at http://localhost:5173
 npm test                     # the parity tests
@@ -102,8 +106,8 @@ npm run build                # the static site, in dist/
 npm run wiretc -- run content/examples/demo.wiret Main
 ```
 
-The desktop app needs [Rust](https://rustup.rs) and, on Linux, the WebKitGTK packages listed
-in [Tauri's prerequisites](https://v2.tauri.app/start/prerequisites/):
+The desktop app also needs, on Linux, the WebKitGTK packages listed in
+[Tauri's prerequisites](https://v2.tauri.app/start/prerequisites/):
 
 ```sh
 npm run tauri dev            # the desktop app, with the page reloading as you edit
@@ -116,12 +120,16 @@ Build on each OS you want installers for (Tauri does not cross-compile), or run 
 ### Layout
 
 ```
-src/core/      the language: parser, printer, checker, compiler, verifier, VM, and the
+src/core/      the language: parser, printer, checker, compiler, verifier, and the
                editor's model (viewmodel, canvasedit, palette, webapi). No DOM, no Node APIs.
+               vm.ts and runtime.ts load the Rust runtime as WebAssembly.
 src/web/       the page: graphview.ts (the canvas), debugger.ts (steps a recorded run),
-               syntax.ts (highlighting), main.ts (the page), host.ts (file open/save)
+               syntax.ts (highlighting), main.ts (the page), host.ts (file open/save),
+               nativevm.ts (the desktop app's native runtime, over Tauri IPC)
 src/cli/       wiretc on Node: file system, git, the merge driver
-src-tauri/     the desktop shell: a window, native file dialogs, file access and watching
+runtime/       the bytecode runtime in Rust: decoder, verifier, VM, natives, replay
+src-tauri/     the desktop shell: a window, native file dialogs, file access and watching,
+               and the runtime as Tauri commands (src/runtime.rs)
 content/       the std library, lessons and examples, embedded into the build by
                scripts/embed.mjs (src/core/content.gen.ts, made before dev/build/test)
 test/          parity tests, and test/golden/: what the Python prototype produces
@@ -130,6 +138,23 @@ test/          parity tests, and test/golden/: what the Python prototype produce
 `src/core/*.ts` mirror `prototype/wiret/*.py` module for module; [`PORTING.md`](PORTING.md)
 says how Python's semantics map onto TypeScript's (64-bit integers are `bigint`, Python's
 float `repr` and `%g`, code-point string comparison, `difflib`, `decimal`).
+
+### The runtime (Rust)
+
+[`runtime/`](runtime/) is the `.wbc` runtime as a Rust crate, `wiret-runtime`: it decodes,
+verifies, links and runs WBC 1 modules, with fibers and virtual time, fuel, faults with node
+tracebacks, deterministic mode (bundled math, in integer arithmetic) and input-log replay. It
+is a port of the TypeScript VM, and gives the same output, results, faults, instruction counts
+and fuel for every lesson and example. It is what a game engine embeds. It is used three ways:
+
+| Host | How |
+| --- | --- |
+| Rust (the desktop app, an engine in Rust) | `wiret_runtime::Vm` directly; `cargo run --example run -- FILE.wbc Main` in `runtime/` shows a host and a host native |
+| The web page, `wiretc` and the tests | built for `wasm32-unknown-unknown` by `scripts/runtime.mjs` (before dev, build, test and wiretc); `src/core/vm.ts` wraps it |
+| The desktop page | the Tauri commands in `src-tauri/src/runtime.rs`, which run VMs natively on their own thread; `src/web/nativevm.ts` is the page's async client |
+
+The WebAssembly build and the Tauri commands speak the same JSON protocol, described in
+[`runtime/src/bridge.rs`](runtime/src/bridge.rs). `cargo test` in `runtime/` runs its unit tests.
 
 ### Web and desktop
 
