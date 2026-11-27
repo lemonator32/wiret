@@ -1,7 +1,9 @@
-//! The Wiret desktop app: a window around the same TypeScript editor, compiler and VM that the
-//! web page runs. Rust opens the window, gives the page native file dialogs and file access (the
-//! dialog and fs plugins), and keeps the student's copies of the lessons; everything else
-//! happens in the page.
+//! The Wiret desktop app: a window around the same editor and compiler that the web page runs.
+//! Rust opens the window, gives the page native file dialogs and file access (the dialog and fs
+//! plugins), keeps the student's copies of the lessons, and offers the bytecode runtime natively
+//! (`runtime`, the same `wiret-runtime` crate the page loads as WebAssembly).
+
+mod runtime;
 
 use std::path::{Component, Path, PathBuf};
 
@@ -108,7 +110,13 @@ pub fn run() {
             lessons_dir,
             read_lesson_copy,
             write_lesson_copy,
-            remove_lesson_copies
+            remove_lesson_copies,
+            runtime::runtime_new,
+            runtime::runtime_load,
+            runtime::runtime_command,
+            runtime::runtime_interrupt,
+            runtime::runtime_free,
+            runtime::runtime_module_capabilities
         ])
         .run(tauri::generate_context!())
         .expect("error while running the Wiret desktop app");
