@@ -14,6 +14,7 @@ import * as textchanges from "./textchanges.js";
 import * as pal from "./palette.js";
 import { Diag, GraphInfo } from "./checker.js";
 import { compileModule, CompileResult } from "./compiler.js";
+import { disassemble } from "./disasm.js";
 import { explain, explainRuntime } from "./explain.js";
 import { ParseError, Parser } from "./parser.js";
 import { GraphNames, printModule } from "./printer.js";
@@ -358,13 +359,16 @@ export interface Step { phase: string; graph: string; node: string; depth: numbe
 export interface DebugResult extends RunResult {
   steps: Step[]; frame_table: Frame[]; globals_table: [string, string, string][][];
   counts: Record<string, Record<string, number>>; truncated: boolean;
+  /** the disassembly of the compiled debug build (`wiretc dis`), or null if it did not compile */
+  bytecode: string | null;
 }
 
 /** Run like `run`, recording the debugger's pause points in `steps`, in order. */
 export function debugRun(source: string, func = "Main", deterministic = false, fuel = 50_000_000, maxSteps = MAX_STEPS): DebugResult {
-  const out: DebugResult = { ...newResult(), steps: [], frame_table: [], globals_table: [], counts: {}, truncated: false };
+  const out: DebugResult = { ...newResult(), steps: [], frame_table: [], globals_table: [], counts: {}, truncated: false, bytecode: null };
   const [m, r] = compileInto(source, out, true);
   if (m === null) return out;
+  out.bytecode = disassemble(r.wbc!);
   const idx = new ModuleIndex(m);
   const prefix = m.name + ".";
   const graphNames = new Set(m.graphs().map((g) => g.name));

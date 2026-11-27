@@ -19,6 +19,11 @@ describe("webapi.debugRun matches", () => {
     // The prototype shows an unset interface or delegate as Python's "None"; the port shows
     // "null", as it does for a class. That one difference is accepted here.
     const expected = JSON.parse(JSON.stringify(G[name]?.debug_run ?? null).replace(/"None"/g, '"null"'));
-    it(name, () => expect(norm(debugRun(text, "Main"))).toEqual(expected));
+    // `bytecode` is the page's Bytecode tab; the prototype's web API has no such field, and
+    // compiler.test.ts checks the disassembly itself.
+    it(name, () => {
+      const { bytecode: _bytecode, ...got } = debugRun(text, "Main");
+      expect(norm(got)).toEqual(expected);
+    });
   }
 });

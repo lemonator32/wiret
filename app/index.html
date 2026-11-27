@@ -252,6 +252,8 @@
   #problems { list-style: none; margin: 0; padding: 0; }
   #problems li { padding: 3px 0; cursor: pointer; }
   .empty { color: var(--faint); font-style: italic; }
+  #bytecode { margin: 0; font: 12px/1.45 var(--mono); white-space: pre; tab-size: 8;
+              font-variant-ligatures: none; }
 
   /* narrow screens: graph, then the tabs, then the output, one under another */
   @media (max-width: 860px) {
@@ -304,6 +306,7 @@
         <button role="tab" id="tab-source" aria-selected="true" aria-controls="pane-source">Source</button>
         <button role="tab" id="tab-debugger" aria-selected="false" aria-controls="pane-debugger">Debugger</button>
         <button role="tab" id="tab-problems" aria-selected="false" aria-controls="pane-problems">Problems</button>
+        <button role="tab" id="tab-bytecode" aria-selected="false" aria-controls="pane-bytecode" title="The compiled .wbc, disassembled">Bytecode</button>
       </div>
       <div class="tabpane" id="pane-source" role="tabpanel">
         <div id="editor">
@@ -313,6 +316,7 @@
       </div>
       <div class="tabpane" id="pane-debugger" role="tabpanel" hidden><div id="dbg-body"></div></div>
       <div class="tabpane" id="pane-problems" role="tabpanel" hidden><ul id="problems"></ul></div>
+      <div class="tabpane" id="pane-bytecode" role="tabpanel" hidden><pre id="bytecode"><span class="empty">Run the program to see its bytecode.</span></pre></div>
     </section>
     <section class="panel"><h2>Output</h2><div id="out" role="log"></div></section>
   </aside>

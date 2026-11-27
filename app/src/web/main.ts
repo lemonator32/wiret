@@ -346,14 +346,15 @@ $("addnode").onclick = () => { const [w, a] = gv.middle(); openPalette(w, a, nul
 $("redo").onclick = redo;
 
 // ---------- tabs ----------
+const TABS = ["source", "debugger", "problems", "bytecode"];
 function showTab(name) {
-  for (const t of ["source", "debugger", "problems"]) {
+  for (const t of TABS) {
     $(`tab-${t}`).setAttribute("aria-selected", t === name);
     $(`pane-${t}`).hidden = t !== name;
   }
   if (name === "source") syncScroll();
 }
-for (const t of ["source", "debugger", "problems"]) $(`tab-${t}`).onclick = () => showTab(t);
+for (const t of TABS) $(`tab-${t}`).onclick = () => showTab(t);
 
 // ---------- running and stepping ----------
 async function start(mode) {
@@ -388,6 +389,7 @@ async function record(mode) {
     showTab("problems");
     return;
   }
+  $("bytecode").textContent = r.bytecode;       // like the prototype, kept until the next build
   nodes = r.nodes;
   trace = r; trace.ms = ms;
   counts = null; fault = null;

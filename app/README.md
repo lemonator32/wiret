@@ -93,5 +93,6 @@ dis, verify, run, replay, caps, hash, view, schema, diff, merge, edit).
 - `wr.graph` (the compressed source in a `.wbc`) is compressed by pako, not zlib, so its bytes
   can differ; it decompresses to the same text.
 - The desktop app is the web editor in a native window, with file open, save and watching
-  added. It is not a port of the Tkinter editor (`prototype/wiret/editor.py`), so what only
-  that editor had, such as its Bytecode tab, is not in it; `wiretc dis` shows the bytecode.
+  added. It is not a port of the Tkinter editor (`prototype/wiret/editor.py`), so not
+  everything that editor had is in it. Its Bytecode tab is: after a run, the Bytecode tab
+  shows the debug build's disassembly, as `wiretc dis` prints it.
