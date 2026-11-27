@@ -12,11 +12,23 @@ export interface HostPage {
   say(text: string, error?: boolean): void;
 }
 
+/** The student's copies of the lessons, kept in ~/Documents/Wiret/my_lessons as the desktop
+ *  prototype keeps them. A lesson is named by its file name, such as `01_hello.wiret`. */
+export interface LessonStore {
+  /** The student's copy of a lesson, or null if they have not changed it. */
+  read(name: string): Promise<string | null>;
+  write(name: string, text: string): Promise<void>;
+  /** Delete the copies of these lessons; anything else in the folder stays. Returns how many. */
+  remove(names: string[]): Promise<number>;
+}
+
 interface Host {
   name: string;
   init(page: HostPage): Promise<void>;
   /** The page loaded a text: a file at `path`, or a lesson (null). */
   opened(path: string | null): void;
+  /** Where lesson changes are kept, if this host keeps them (the desktop app does). */
+  lessons: LessonStore | null;
 }
 
 const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -123,6 +135,7 @@ function webHost(): Host {
       page = p;
       addButtons(open, save, saveAs);
     },
+    lessons: null,
     opened(path) {
       if (path === null) handle = null;
       current = path;
@@ -201,8 +214,17 @@ function tauriHost(): Host {
       page.say(`Could not save the file: ${e}`, true);
     }
   };
+  const call = async <T>(cmd: string, args: Record<string, unknown>): Promise<T> => {
+    const { invoke } = await import("@tauri-apps/api/core");
+    return invoke<T>(cmd, args);
+  };
   return {
     name: "Wiret desktop",
+    lessons: {
+      read: (name) => call<string | null>("read_lesson_copy", { name }),
+      write: (name, text) => call<void>("write_lesson_copy", { name, text }),
+      remove: (names) => call<number>("remove_lesson_copies", { names }),
+    },
     async init(p) {
       page = p;
       fs = await import("@tauri-apps/plugin-fs");

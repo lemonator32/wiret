@@ -242,7 +242,20 @@ async function boot() {
     const name = f.split("/").pop().replace(".wiret", "").replace(/^(\d+)_/, "$1. ").replace(/_/g, " ");
     $("lesson").add(new Option(name, f));
   }
-  $("lesson").onchange = () => loadText(CONTENT[$("lesson").value], null);
+  if (host.lessons) {
+    const line = new Option("────────────", "");
+    line.disabled = true;
+    $("lesson").add(line);
+    $("lesson").add(new Option("Start this lesson over…", RESTART_ONE));
+    $("lesson").add(new Option("Start all lessons over…", RESTART_ALL));
+  }
+  $("lesson").onchange = () => {
+    if ($("lesson").value === RESTART_ONE) return restartLesson();
+    if ($("lesson").value === RESTART_ALL) return restartAllLessons();
+    picked = $("lesson").value;
+    openLesson(picked);
+  };
+  addEventListener("pagehide", keepLesson);
   $("lesson").disabled = false;
   await host.init({ getText: () => $("src").value, setText: (text, path) => { loadText(text, path); }, say });
   $("ready").textContent = `${host.name} · ready in ${((performance.now() - t0) / 1000).toFixed(2)} s`;
@@ -250,9 +263,94 @@ async function boot() {
   setButtons();
 }
 
-/** Show `text` as the program, fresh: a lesson picked from the menu, or a file opened. */
-function loadText(text, path) {
+// ---------- the student's copies of the lessons ----------
+/* The desktop app keeps each lesson the student changes in ~/Documents/Wiret/my_lessons (the
+ * folder the desktop prototype uses), so their work is there the next time they pick it. */
+const RESTART_ONE = "\0restart-one";
+const RESTART_ALL = "\0restart-all";
+let lesson = null;            // the open lesson (its CONTENT key), or null for a file
+let lessonSaved = null;       // its text as last loaded or kept
+let lessonWrites = Promise.resolve();
+let picked = "";              // the menu entry last picked, which the menu goes back to
+
+/** The name a lesson's copy has in my_lessons: its file name, as the prototype names it. */
+const copyName = (key) => key.split("/").pop();
+
+/** Show a lesson: the student's copy if they have changed it, else the original. */
+async function openLesson(key) {
+  let text = CONTENT[key], mine = null;
+  if (host.lessons) {
+    await lessonWrites;
+    mine = await host.lessons.read(copyName(key)).catch((e) => {
+      say(`Could not read your copy of this lesson, so the original is shown: ${e}`, true);
+      return null;
+    });
+  }
+  if ($("lesson").value !== key) return;              // another was picked while reading
+  const continued = mine !== null && mine !== text;
+  if (continued) text = mine;
+  loadText(text, null, key);
+  if (continued) say("You have worked on this lesson before, so your changes are back. " +
+                     "To start it again from the beginning, pick \"Start this lesson over…\" at the bottom of the lesson menu.");
+}
+
+/** Keep the open lesson's text in my_lessons if it changed since it was loaded or last kept. */
+function keepLesson() {
+  if (!host.lessons || lesson === null) return;
+  const text = $("src").value;
+  if (text === lessonSaved) return;
+  lessonSaved = text;
+  const name = copyName(lesson);
+  lessonWrites = lessonWrites.then(() => host.lessons.write(name, text))
+    .catch((e) => say(`Could not keep your changes to this lesson: ${e}`, true));
+}
+
+/** Throw away the copy of the open lesson and show its original. */
+async function restartLesson() {
+  const back = lesson;
+  $("lesson").value = picked;                         // the menu shows what is open, not this entry
+  if (back === null) return say("The open program is not a lesson, so there is nothing to start over.");
+  const title = $("lesson").selectedOptions[0]?.textContent ?? copyName(back);
+  if (!confirm(`Throw away your changes to ${title} and start it again from the beginning?\n\n` +
+               "This cannot be undone.")) return;
+  lesson = null;                                      // nothing of the open lesson is kept now
+  await lessonWrites;
+  try {
+    await host.lessons.remove([copyName(back)]);
+  } catch (e) {
+    lesson = back;
+    return say(`Could not start the lesson over: ${e}`, true);
+  }
+  loadText(CONTENT[back], null, back);
+  say(`Started ${title} over.`);
+}
+
+/** Throw away the copies of every lesson in the menu and show the open lesson's original. */
+async function restartAllLessons() {
+  const back = lesson;
+  $("lesson").value = picked;                         // the menu shows what is open, not this entry
+  if (!confirm("Throw away your changes to all the lessons and start them again from the " +
+               "originals?\n\nThis cannot be undone.")) return;
+  lesson = null;                                      // nothing of the open lesson is kept now
+  await lessonWrites;
+  let removed;
+  try {
+    removed = await host.lessons.remove(FILES.map(([f]) => copyName(f)));
+  } catch (e) {
+    lesson = back;
+    return say(`Could not start the lessons over: ${e}`, true);
+  }
+  if (back) loadText(CONTENT[back], null, back);
+  say(removed ? `Started ${removed} lesson${removed === 1 ? "" : "s"} over.`
+              : "No lesson had been changed, so there was nothing to start over.");
+}
+
+/** Show `text` as the program, fresh: a lesson picked from the menu (`key`), or a file opened. */
+function loadText(text, path, key = null) {
   stop();
+  keepLesson();                                       // what was typed in the last moment
+  lesson = key;
+  lessonSaved = text;
   host.opened(path);
   $("src").value = text;
   $("src").scrollTop = 0;
@@ -269,6 +367,7 @@ function loadText(text, path) {
 }
 
 function recheck() {
+  keepLesson();                                       // every change of the text comes here
   const r = api.check($("src").value);
   const parsed = !r.diags.some((d) => d.code === "parse");
   if (parsed) { nodes = r.nodes; graphs = r.graphs; }
