@@ -6,3 +6,6 @@ dist/
 scratch/
 # made from content/ by scripts/embed.mjs before dev, build, test and wiretc
 src/core/content.gen.ts
+# built from runtime/ by scripts/runtime.mjs
+src/core/wiret_runtime.wasm
+runtime/target/
