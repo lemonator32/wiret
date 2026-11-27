@@ -1,8 +1,9 @@
-# Publishes the browser version of the prototype (prototype/web) to GitHub Pages.
+# Publishes the web version of the Wiret editor (app/, TypeScript) to GitHub Pages.
 #
-# Every push to main runs the prototype's tests, builds the static site
-# (prototype/web/build_web.py --site) and deploys it. Pull requests into main run the
-# same tests and build, without deploying, so a broken site is caught before it is merged.
+# Every push to main runs the Python prototype's tests and the TypeScript app's tests (which
+# check that the app gives the same results as the prototype), builds the static site
+# (app/dist) and deploys it. Pull requests into main run the same tests and build, without
+# deploying, so a broken site is caught before it is merged.
 name: Pages
 
 on:
@@ -28,19 +29,33 @@ jobs:
 
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"   # the version Pyodide 0.27 runs in the browser
+          python-version: "3.12"
 
       - name: Run the prototype's tests
         working-directory: prototype
         run: python -m unittest discover tests
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install the app's dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Run the app's tests
+        working-directory: app
+        run: npm test
+
       - name: Build the site
-        working-directory: prototype
-        run: python web/build_web.py --site ../_site
+        working-directory: app
+        run: npm run build
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: _site
+          path: app/dist
 
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
