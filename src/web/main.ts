@@ -3,6 +3,7 @@ import { Session, nodeKey } from "./debugger.js";
 import { GraphView } from "./graphview.js";
 import { makeHighlighter } from "./syntax.js";
 import { API as api } from "../core/webapi.js";
+import { init as initRuntime } from "../core/vm.js";
 import { CONTENT } from "../core/content.gen.js";
 import { host } from "./host.js";
 
@@ -233,6 +234,7 @@ const FILES = Object.entries(CONTENT).filter(([f]) => !f.startsWith("std/"))
 
 async function boot() {
   const t0 = performance.now();
+  await initRuntime();
   const rules = api.syntax();
   highlighter = makeHighlighter(rules);
   for (const [tag, color] of Object.entries(rules.colors)) {

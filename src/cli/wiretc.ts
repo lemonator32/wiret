@@ -37,7 +37,7 @@ import { parse, ParseError } from "../core/parser.js";
 import { layoutHash, printModule, semanticHash } from "../core/printer.js";
 import { registryJson } from "../core/registry.js";
 import { formatResults, parseArgsFor, runFunction, ValueError } from "../core/runner.js";
-import { moduleCapabilities, replay, ReplayMismatch, VM, WiretError } from "../core/vm.js";
+import { init as initRuntime, moduleCapabilities, replay, ReplayMismatch, VM, WiretError } from "../core/vm.js";
 import { sortedBy } from "../core/pyutil.js";
 
 const nodeFs: FileSystem = {
@@ -437,6 +437,7 @@ export function main(argv: string[]): number {
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
 if (isMain) {
+  await initRuntime();
   let code: number;
   try {
     code = main(process.argv.slice(2));

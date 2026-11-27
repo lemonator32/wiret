@@ -1,7 +1,7 @@
 /** Disassembler (`wiretc dis`, spec section 5.8): bytecode with node ids from `wr.debug`. */
 import * as lanes from "./lanes.js";
 import * as wbc from "./wbc.js";
-import { parseCaps, parseCustoms } from "./vm.js";
+import { parseCaps, parseCustoms } from "./customs.js";
 import { ArrayType, ClassType, decodeCode, FuncType, vtName } from "./wbc.js";
 import { cpLen, floatRepr, pyRepr } from "./pyutil.js";
 

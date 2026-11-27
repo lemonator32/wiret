@@ -414,11 +414,11 @@ export function debugRun(source: string, func = "Main", deterministic = false, f
     const rows: [string, string, string][] = [];
     for (const v of sortedBy(idx.vars.values(), (v) => v.name)) {
       const gi = lm.global_names.get(v.name);
-      if (gi !== undefined) rows.push([v.name, v.type, formatValue(v.type, lm.globals[gi], idx)]);
+      if (gi !== undefined) rows.push([v.name, v.type, formatValue(v.type, lm.global(gi), idx)]);
     }
     return rows;
   };
-  const hook = (fname: string, node: string, _pending: string[], depth: number, snapshot: () => FrameView[], phase: string) => {
+  const hook = (fname: string, node: string, _pending: () => string[], depth: number, snapshot: () => FrameView[], phase: string) => {
     const g = short(fname, prefix);
     if (node.includes("/") || !graphNames.has(g)) return;
     const t = top(node);

@@ -7,8 +7,7 @@ import {
 } from "./registry.js";
 import * as lanes from "./lanes.js";
 import { LANE_FIELDS } from "./lanes.js";
-import { FIBER_DONE, FIBER_FAULTED, FIBER_READY, LoadedModule, Obj, STATUS_FUEL, STATUS_YIELD, VM, WiretError } from "./vm.js";
-import { FN_LATENT } from "./wbc.js";
+import { LoadedModule, Obj, VM } from "./vm.js";
 import { pyRepr, ValueError } from "./pyutil.js";
 
 export { ValueError };
@@ -164,23 +163,9 @@ export function formatResults(m: Module | null, func: string, values: any[]): st
   return g.result_list.map((r, i) => `${r.name} = ${formatValue(r.type, values[i], idx)}`).join(", ");
 }
 
-export const MAX_ADVANCES = 100_000;
-
 /** Call `func` and return its results. A latent function or event runs as a fiber (section
- * 4.5): idle virtual time is skipped, so a `Delay` of five seconds finishes at once. */
+ * 4.5): idle virtual time is skipped, so a `Delay` of five seconds finishes at once. The
+ * runtime does the stepping (`Vm::run_function` in runtime/src/vm.rs). */
 export function runFunction(vm: VM, lm: LoadedModule, func: string, args: any[]): any[] {
-  const f = lm.exports.has(func) ? lm.funcs[lm.exports.get(func)!] : null;
-  const owner = func.includes(".") ? func.slice(0, func.lastIndexOf(".")) : "";
-  if (f !== null && lm.classes.has(owner) && args.length === f.params.length - 1) args = [vm.new(lm, owner), ...args];
-  if (f === null || !(f.flags & FN_LATENT)) return vm.call(lm, func, args);
-  const fb = vm.start(lm, func, args, true);
-  for (let i = 0; i < MAX_ADVANCES; i++) {
-    if (fb.status === FIBER_DONE) return fb.results!;
-    if (fb.status === FIBER_FAULTED) throw fb.error;
-    const nxt = vm.nextWake();
-    if (vm.fibers.some((x) => x.status === FIBER_READY)) vm.advance(0.0);
-    else if (nxt !== null) vm.advance(Math.max(nxt - vm.time, 0.0));
-    else throw new WiretError(STATUS_YIELD, `'${func}' is waiting for a signal that nothing will fire`);
-  }
-  throw new WiretError(STATUS_FUEL, `'${func}' was still running after ${MAX_ADVANCES} steps of virtual time`);
+  return vm.runFunction(lm, func, args);
 }
