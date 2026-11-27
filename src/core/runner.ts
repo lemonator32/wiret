@@ -1,6 +1,6 @@
-/** Helpers shared by the CLI and the editor for calling a function with typed arguments. */
+﻿/** Helpers shared by the CLI and the editor for calling a function with typed arguments. */
 import { Lit, Module } from "./model.js";
-import { CMap, floatToText } from "./natives.js";
+import { floatToText } from "./natives.js";
 import { ParseError, Parser, parseLiteral } from "./parser.js";
 import {
   arrayElem, enumValues, FLOAT_TYPES, isContainer, laneLitFits, laneValue, litFits, mapTypes, ModuleIndex, setElem,
@@ -121,7 +121,6 @@ export function formatValue(ty: string | null, v: any, idx: ModuleIndex | null =
       if (formatValue(base, normInt(base, value)) === formatValue(base, v)) return `${ty}::${name}`;
     return `${ty}(${formatValue(base, v)})`;
   }
-  if (v instanceof CMap) v = new Map(v.entries());
   if (v instanceof Map) {
     const kv = ty ? mapTypes(ty) : null;
     let isMap: boolean;

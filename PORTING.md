@@ -49,7 +49,7 @@ keep independently ported modules compatible with each other.
 ## Library replacements
 - `hashlib.sha256(...).hexdigest()` → `sha256Hex` (`@noble/hashes`), `zlib.compress(b, 9)` →
   `pako.deflate(b, { level: 9 })`, `difflib.SequenceMatcher` → `./difflib.js`,
-  `decimal` (detmath) → `decimal.js`, `unicodedata.normalize("NFC", s)` → `s.normalize("NFC")`,
+  `unicodedata.normalize("NFC", s)` → `s.normalize("NFC")`,
   `json.dumps` → `pyutil.jsonDumps` where byte-identical output to Python matters.
 - Modules return objects, not JSON strings, where the Python returned `json.dumps(...)` only to
   cross the Pyodide boundary (webapi).

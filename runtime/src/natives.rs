@@ -1,11 +1,11 @@
-//! Standard-library and host natives (spec sections 3.4 and 6.6), a port of
+﻿//! Standard-library and host natives (spec sections 3.4 and 6.6), a port of
 //! `src/core/natives.ts`.
 //!
 //! `std.*` natives are always available. Host natives (`host.*`) must be declared with `extern
 //! func` in the module; the host supplies them with [`crate::Vm::register`]. The non-deterministic
 //! math natives use the `libm` crate, so they give the same bits on every platform too (but
 //! deterministic mode does not rely on that: it swaps in [`crate::detmath`]).
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use std::rc::Rc;
 
 use crate::fmt::float_to_text;
@@ -44,6 +44,9 @@ pub struct NativeSpec {
     pub capability: Option<String>,
     /// WR_NATIVE_DETERMINISTIC (section 6.6)
     pub deterministic: bool,
+    /// "std" (the library a program calls), "internal" (natives only the compiler emits calls
+    /// to) or "host" (natives a module imports with `extern func`)
+    pub group: &'static str,
 }
 
 impl NativeSpec {
@@ -63,6 +66,7 @@ impl NativeSpec {
             cost: None,
             capability: None,
             deterministic: true,
+            group: "host",
         }
     }
     pub fn with_fn(&self, func: impl Fn(&mut Vm, &[Value]) -> Result<Vec<Value>, NativeFault> + 'static) -> NativeSpec {
@@ -160,10 +164,11 @@ fn single_text(x: f64) -> String {
     float_to_text(x, true)
 }
 
-fn lane_natives(out: &mut HashMap<String, NativeSpec>, trig: Trig) {
+fn lane_natives(out: &mut IndexMap<String, NativeSpec>, trig: Trig) {
     let mut nat = |name: String, params: &[(&str, &str)], results: &[(&str, &str)], g: Rc<dyn Fn(&[Value]) -> Value>, doc: &str| {
         let mut spec = NativeSpec::new(params, results, "pure", move |_, a| Ok(vec![g(a)]));
         spec.doc = doc.into();
+        spec.group = "std";
         out.insert(name, spec);
     };
     use lanes::{comps as c, mk};
@@ -203,55 +208,60 @@ fn lane_natives(out: &mut HashMap<String, NativeSpec>, trig: Trig) {
 pub const LANE_TRIG: [&str; 3] = ["std.quat.FromAxisAngle", "std.quat.Slerp", "std.quat.Angle"];
 
 /// The lane natives built on `trig`.
-pub fn lane_trig_natives(trig: Trig) -> HashMap<String, NativeSpec> {
-    let mut out = HashMap::new();
+pub fn lane_trig_natives(trig: Trig) -> IndexMap<String, NativeSpec> {
+    let mut out = IndexMap::new();
     lane_natives(&mut out, trig);
     out
 }
 
 pub const LIBM_TRIG: Trig = Trig { sin: libm::sin, cos: libm::cos, acos: libm::acos };
 
-/// `std.*`, the compiler's internal natives and `host.Log`.
-pub fn all_natives() -> HashMap<String, NativeSpec> {
-    let mut t: HashMap<String, NativeSpec> = HashMap::new();
-    let mut put = |name: &str, spec: NativeSpec| {
+
+/// Every native the runtime provides, in the order the editor lists them: the `std.*`
+/// library, then the internal natives the compiler calls on its own (to lower `Convert<X,
+/// string>`, float `Rem`, faults and container `Eq`), then `host.Log`.
+pub fn all_natives() -> IndexMap<String, NativeSpec> {
+    let mut t: IndexMap<String, NativeSpec> = IndexMap::new();
+    let mut put = |name: &str, group: &'static str, mut spec: NativeSpec| {
+        spec.group = group;
         t.insert(name.to_string(), spec);
     };
+    const S: &str = "std";
+    const I: &str = "internal";
     const FX: &[(&str, &str)] = &[("x", "f64")];
     const FR: &[(&str, &str)] = &[("result", "f64")];
-    put("std.math.Sqrt", NativeSpec::new(FX, FR, "pure", f64u(py_sqrt)));
-    put("std.math.Sin", NativeSpec::new(FX, FR, "pure", f64u(libm::sin)));
-    put("std.math.Cos", NativeSpec::new(FX, FR, "pure", f64u(libm::cos)));
-    put("std.math.Tan", NativeSpec::new(FX, FR, "pure", f64u(libm::tan)));
-    put("std.math.Exp", NativeSpec::new(FX, FR, "pure", f64u(py_exp)));
-    put("std.math.Log", NativeSpec::new(FX, FR, "pure", f64u(py_log)));
-    put("std.math.Floor", NativeSpec::new(FX, FR, "pure", f64u(py_floor)));
-    put("std.math.Ceil", NativeSpec::new(FX, FR, "pure", f64u(py_ceil)));
-    put("std.math.Round", NativeSpec::new(FX, FR, "pure", f64u(round_half_away)));
-    put("std.math.Acos", NativeSpec::new(FX, FR, "pure", f64u(libm::acos)));
-    put("std.math.Pow", NativeSpec::new(&[("a", "f64"), ("b", "f64")], FR, "pure", |_, a| Ok(vec![Value::F64(py_pow(f(&a[0]), f(&a[1])))])));
-    put("std.math.Atan2", NativeSpec::new(&[("y", "f64"), ("x", "f64")], FR, "pure", |_, a| Ok(vec![Value::F64(libm::atan2(f(&a[0]), f(&a[1])))])));
-    put("std.math.Lerp", NativeSpec::new(&[("a", "f64"), ("b", "f64"), ("t", "f64")], FR, "pure", |_, a| {
+    put("std.math.Sqrt", S, NativeSpec::new(FX, FR, "pure", f64u(py_sqrt)));
+    put("std.math.Sin", S, NativeSpec::new(FX, FR, "pure", f64u(libm::sin)));
+    put("std.math.Cos", S, NativeSpec::new(FX, FR, "pure", f64u(libm::cos)));
+    put("std.math.Tan", S, NativeSpec::new(FX, FR, "pure", f64u(libm::tan)));
+    put("std.math.Exp", S, NativeSpec::new(FX, FR, "pure", f64u(py_exp)));
+    put("std.math.Log", S, NativeSpec::new(FX, FR, "pure", f64u(py_log)));
+    put("std.math.Floor", S, NativeSpec::new(FX, FR, "pure", f64u(py_floor)));
+    put("std.math.Ceil", S, NativeSpec::new(FX, FR, "pure", f64u(py_ceil)));
+    put("std.math.Round", S, NativeSpec::new(FX, FR, "pure", f64u(round_half_away)));
+    put("std.math.Pow", S, NativeSpec::new(&[("a", "f64"), ("b", "f64")], FR, "pure", |_, a| Ok(vec![Value::F64(py_pow(f(&a[0]), f(&a[1])))])));
+    put("std.math.Atan2", S, NativeSpec::new(&[("y", "f64"), ("x", "f64")], FR, "pure", |_, a| Ok(vec![Value::F64(libm::atan2(f(&a[0]), f(&a[1])))])));
+    put("std.math.Lerp", S, NativeSpec::new(&[("a", "f64"), ("b", "f64"), ("t", "f64")], FR, "pure", |_, a| {
         let (x, y, s) = (f(&a[0]), f(&a[1]), f(&a[2]));
         Ok(vec![Value::F64(x + (y - x) * s)])
     }));
-    put("std.math.Pi", NativeSpec::new(&[], FR, "pure", |_, _| Ok(vec![Value::F64(std::f64::consts::PI)])));
+    put("std.math.Pi", S, NativeSpec::new(&[], FR, "pure", |_, _| Ok(vec![Value::F64(std::f64::consts::PI)])));
     const S2: &[(&str, &str)] = &[("a", "string"), ("b", "string")];
-    put("std.string.Concat", NativeSpec::new(S2, &[("result", "string")], "pure", |_, a| {
+    put("std.string.Concat", S, NativeSpec::new(S2, &[("result", "string")], "pure", |_, a| {
         Ok(vec![Value::str(&format!("{}{}", a[0].as_str(), a[1].as_str()))])
     }));
-    put("std.string.Length", NativeSpec::new(&[("s", "string")], &[("result", "i32")], "pure", |_, a| {
+    put("std.string.Length", S, NativeSpec::new(&[("s", "string")], &[("result", "i32")], "pure", |_, a| {
         Ok(vec![Value::I32(a[0].as_str().len() as i32)])
     }));
-    put("std.string.Substring", NativeSpec::new(&[("s", "string"), ("start", "i32"), ("length", "i32")], &[("result", "string")], "pure", |_, a| {
+    put("std.string.Substring", S, NativeSpec::new(&[("s", "string"), ("start", "i32"), ("length", "i32")], &[("result", "string")], "pure", |_, a| {
         substring(a[0].as_str(), a[1].i32() as i64, a[2].i32() as i64)
     }));
-    put("std.string.Find", NativeSpec::new(&[("s", "string"), ("sub", "string")], &[("result", "i32")], "pure", |_, a| {
+    put("std.string.Find", S, NativeSpec::new(&[("s", "string"), ("sub", "string")], &[("result", "i32")], "pure", |_, a| {
         Ok(vec![Value::I32(a[0].as_str().find(a[1].as_str()).map_or(-1, |i| i as i32))])
     }));
-    put("std.string.ToUpper", NativeSpec::new(&[("s", "string")], &[("result", "string")], "pure", |_, a| Ok(vec![Value::str(&a[0].as_str().to_uppercase())])));
-    put("std.string.ToLower", NativeSpec::new(&[("s", "string")], &[("result", "string")], "pure", |_, a| Ok(vec![Value::str(&a[0].as_str().to_lowercase())])));
-    put("std.string.Repeat", NativeSpec::new(&[("s", "string"), ("count", "i32")], &[("result", "string")], "pure", |_, a| {
+    put("std.string.ToUpper", S, NativeSpec::new(&[("s", "string")], &[("result", "string")], "pure", |_, a| Ok(vec![Value::str(&a[0].as_str().to_uppercase())])));
+    put("std.string.ToLower", S, NativeSpec::new(&[("s", "string")], &[("result", "string")], "pure", |_, a| Ok(vec![Value::str(&a[0].as_str().to_lowercase())])));
+    put("std.string.Repeat", S, NativeSpec::new(&[("s", "string"), ("count", "i32")], &[("result", "string")], "pure", |_, a| {
         let s = a[0].as_str();
         let n = a[1].i32().max(0) as usize;
         if s.len().saturating_mul(n) > MAX_STRING {
@@ -261,42 +271,47 @@ pub fn all_natives() -> HashMap<String, NativeSpec> {
     }));
     let mut sig_new = NativeSpec::new(&[], &[("signal", "std.Signal")], "impure", |_, _| Ok(vec![Value::Signal(Rc::new(Signal::default()))]));
     sig_new.doc = "Make a new signal that fibers can Await.".into();
-    put("std.signal.New", sig_new);
+    put("std.signal.New", S, sig_new);
     let mut sig_fire = NativeSpec::new(&[("signal", "std.Signal")], &[], "impure", signal_fire);
     sig_fire.doc = "Wake every fiber waiting on the signal. They run on the next advance of time.".into();
-    put("std.signal.Fire", sig_fire);
+    put("std.signal.Fire", S, sig_fire);
+    put("std.math.Acos", S, NativeSpec::new(FX, FR, "pure", f64u(libm::acos)));
+    lane_natives(&mut t, LIBM_TRIG);
 
-    // natives the compiler calls on its own to lower Convert<X, string> and float Rem
+    let mut put = |name: &str, group: &'static str, mut spec: NativeSpec| {
+        spec.group = group;
+        t.insert(name.to_string(), spec);
+    };
     let conv = |ty: &'static str, g: fn(&Value) -> String| NativeSpec::new(&[("v", ty)], &[("r", "string")], "pure", move |_, a| Ok(vec![Value::str(&g(&a[0]))]));
-    put("std.convert.FromBool", conv("i32", |v| if v.i32() != 0 { "true".into() } else { "false".into() }));
-    put("std.convert.FromI32", conv("i32", |v| v.i32().to_string()));
-    put("std.convert.FromU32", conv("i32", |v| (v.i32() as u32).to_string()));
-    put("std.convert.FromI64", conv("i64", |v| v.i64().to_string()));
-    put("std.convert.FromU64", conv("i64", |v| (v.i64() as u64).to_string()));
-    put("std.convert.FromF32", conv("f32", |v| float_to_text(v.as_f64(), true)));
-    put("std.convert.FromF64", conv("f64", |v| float_to_text(v.as_f64(), false)));
-    for t in ["vec2", "vec3", "quat", "transform"] {
-        let name = format!("std.convert.From{}{}", t[..1].to_uppercase(), &t[1..]);
-        put(&name, NativeSpec::new(&[("v", t)], &[("r", "string")], "pure", |_, a| Ok(vec![Value::str(&lanes::to_text(&a[0], &single_text))])));
-    }
-    put("std.math.FRem32", NativeSpec::new(&[("a", "f32"), ("b", "f32")], &[("r", "f32")], "pure", |_, a| {
+    put("std.convert.FromBool", I, conv("i32", |v| if v.i32() != 0 { "true".into() } else { "false".into() }));
+    put("std.convert.FromI32", I, conv("i32", |v| v.i32().to_string()));
+    put("std.convert.FromU32", I, conv("i32", |v| (v.i32() as u32).to_string()));
+    put("std.convert.FromI64", I, conv("i64", |v| v.i64().to_string()));
+    put("std.convert.FromU64", I, conv("i64", |v| (v.i64() as u64).to_string()));
+    put("std.convert.FromF32", I, conv("f32", |v| float_to_text(v.as_f64(), true)));
+    put("std.convert.FromF64", I, conv("f64", |v| float_to_text(v.as_f64(), false)));
+    put("std.math.FRem32", I, NativeSpec::new(&[("a", "f32"), ("b", "f32")], &[("r", "f32")], "pure", |_, a| {
         let (x, y) = (a[0].f32() as f64, a[1].f32() as f64);
         Ok(vec![Value::F32(if y != 0.0 && !y.is_nan() { (x % y) as f32 } else { f32::NAN })])
     }));
-    put("std.math.FRem64", NativeSpec::new(&[("a", "f64"), ("b", "f64")], &[("r", "f64")], "pure", |_, a| {
+    put("std.math.FRem64", I, NativeSpec::new(&[("a", "f64"), ("b", "f64")], &[("r", "f64")], "pure", |_, a| {
         let (x, y) = (f(&a[0]), f(&a[1]));
         Ok(vec![Value::F64(if y != 0.0 && !y.is_nan() { x % y } else { f64::NAN })])
     }));
-    put("std.fault.Make", NativeSpec::new(&[("message", "string"), ("code", "i32")], &[("fault", "fault")], "pure", |_, a| {
+    for t in ["vec2", "vec3", "quat", "transform"] {
+        let name = format!("std.convert.From{}{}", t[..1].to_uppercase(), &t[1..]);
+        put(&name, I, NativeSpec::new(&[("v", t)], &[("r", "string")], "pure", |_, a| Ok(vec![Value::str(&lanes::to_text(&a[0], &single_text))])));
+    }
+    put("std.fault.Make", I, NativeSpec::new(&[("message", "string"), ("code", "i32")], &[("fault", "fault")], "pure", |_, a| {
         Ok(vec![Value::Fault(Rc::new(FaultValue { message: a[0].as_str().to_string(), code: a[1].i32() }))])
     }));
-    put("std.fault.Message", NativeSpec::new(&[("fault", "fault")], &[("message", "string")], "pure", |_, a| {
+    put("std.fault.Message", I, NativeSpec::new(&[("fault", "fault")], &[("message", "string")], "pure", |_, a| {
         Ok(vec![match &a[0] {
             Value::Fault(x) => Value::str(&x.message),
             _ => Value::str(""),
         }])
     }));
-    put("std.fault.Code", NativeSpec::new(&[("fault", "fault")], &[("code", "i32")], "pure", |_, a| {
+    put("std.fault.Code", I, NativeSpec::new(&[("fault", "fault")], &[("code", "i32")], "pure", |_, a| {
         Ok(vec![Value::I32(match &a[0] {
             Value::Fault(x) => x.code,
             _ => 0,
@@ -311,7 +326,7 @@ pub fn all_natives() -> HashMap<String, NativeSpec> {
         spec.cost = Some(Rc::new(|a: &[Value]| {
             if a[0].len() != a[1].len() { 0 } else { (value_size(&a[0]).min(value_size(&a[1])) >> 3) as i64 }
         }));
-        put(&format!("std.{kind}.Equals"), spec);
+        put(&format!("std.{kind}.Equals"), I, spec);
     }
     let mut log = NativeSpec::new(&[("message", "string")], &[], "impure", |vm, a| {
         vm.output(a[0].as_str());
@@ -319,7 +334,30 @@ pub fn all_natives() -> HashMap<String, NativeSpec> {
     });
     log.doc = "Write a line to the console.".into();
     log.capability = Some("console.write".into());
-    put("host.Log", log);
-    lane_natives(&mut t, LIBM_TRIG);
+    put("host.Log", "host", log);
     t
+}
+
+/// The signatures of every native, for a compiler or editor: `{"std": {name: {params,
+/// results, purity, doc, capability}}, "internal": {...}, "host": {...}}`, each in order.
+pub fn native_table() -> serde_json::Value {
+    use serde_json::{json, Map, Value as J};
+    let mut groups: IndexMap<&str, Map<String, J>> = IndexMap::new();
+    for g in ["std", "internal", "host"] {
+        groups.insert(g, Map::new());
+    }
+    let pairs = |v: &[(String, String)]| v.iter().map(|(a, b)| json!([a, b])).collect::<Vec<_>>();
+    for (name, s) in all_natives() {
+        groups.entry(s.group).or_default().insert(
+            name,
+            json!({
+                "params": pairs(&s.params),
+                "results": pairs(&s.results),
+                "purity": s.purity,
+                "doc": s.doc,
+                "capability": s.capability,
+            }),
+        );
+    }
+    J::Object(groups.into_iter().map(|(k, v)| (k.to_string(), J::Object(v))).collect())
 }

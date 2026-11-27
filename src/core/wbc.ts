@@ -1,4 +1,6 @@
-/** WBC 1 binary format (spec section 5): opcodes, LEB128 and the section container.
+﻿/** WBC 1 binary format (spec section 5): opcodes, LEB128 and the section container, as the
+ * compiler writes them. Reading modules (decoding, verifying, disassembling) is the runtime's
+ * job (runtime/src/wbc.rs).
  *
  * Encoding choices the draft leaves open, fixed here for the prototype:
  * - every `u32` in the container (section sizes, vector lengths, indices) is unsigned LEB128;
@@ -7,7 +9,7 @@
  *   in one pass;
  * - custom section payload layouts are documented in `prototype/README.md`. */
 import { IMM_OPS as _LANE_IMM, SUB_OPS as _LANE_SUB } from "./lanes.js";
-import { fromUtf8, utf8 } from "./pyutil.js";
+import { utf8 } from "./pyutil.js";
 
 export const MAGIC = new Uint8Array([0x00, 0x57, 0x42, 0x43]);   // "\0WBC"
 export const VERSION = 1;
@@ -24,8 +26,6 @@ export const VEC2 = 0x76, VEC3 = 0x75, QUAT = 0x74, TRANSFORM = 0x73;
 export const LANE_VTS: Map<number, string> = new Map([[VEC2, "vec2"], [VEC3, "vec3"], [QUAT, "quat"], [TRANSFORM, "transform"]]);
 export const LANE_LAYOUT: Map<number, number[]> = new Map([
   [VEC2, [F32, F32]], [VEC3, [F32, F32, F32]], [QUAT, [F32, F32, F32, F32]], [TRANSFORM, [VEC3, QUAT, VEC3]]]);
-export const VT_NAMES: Map<number, string> = new Map([[I32, "i32"], [I64, "i64"], [F32, "f32"], [F64, "f64"],
-  [STRING, "string"], [ANYREF, "anyref"], [FAULT, "fault"], [SIGNAL, "signal"], ...LANE_VTS]);
 export const FUNC_TYPE = 0x60;
 export const ARRAY_TYPE = 0x5E;
 export const STRUCT_TYPE = 0x5F;
@@ -72,28 +72,6 @@ export class InterfaceType { constructor(readonly methods: number[]) {} }
 export type FuncType = [VT[], VT[]];
 export type TypeEntry = FuncType | ArrayType | StructType | MapType | SetType | ClassType
   | DelegateType | DispatcherType | InterfaceType;
-
-export function isFuncType(e: TypeEntry | undefined): e is FuncType {
-  return Array.isArray(e);
-}
-
-/** Class names by type index, for messages and disassembly; set from a module's `name` section. */
-export const CLASS_NAMES = new Map<number, string>();
-
-export function vtName(vt: VT, types: TypeEntry[] | null = null, depth = 0): string {
-  if (vt instanceof Ref) {
-    const entry = types !== null && vt.type < types.length ? types[vt.type] : null;
-    if (entry instanceof ArrayType && depth < 8) return `array#<${vtName(entry.elem, types, depth + 1)}>`;
-    if (entry instanceof StructType) return `struct ${vt.type}`;
-    if (entry instanceof ClassType || entry instanceof InterfaceType)
-      return CLASS_NAMES.get(vt.type) ?? `${entry instanceof ClassType ? "class" : "interface"} ${vt.type}`;
-    if (entry instanceof MapType && depth < 8)
-      return `map#<${vtName(entry.key, types, depth + 1)}, ${vtName(entry.value, types, depth + 1)}>`;
-    if (entry instanceof SetType && depth < 8) return `set#<${vtName(entry.elem, types, depth + 1)}>`;
-    return `ref ${vt.type}`;
-  }
-  return VT_NAMES.get(vt) ?? `0x${vt.toString(16).toUpperCase().padStart(2, "0")}`;
-}
 
 // section ids
 export const SEC_CUSTOM = 0, SEC_TYPE = 1, SEC_IMPORT = 2, SEC_FUNCTION = 3, SEC_GLOBAL = 4,
@@ -159,12 +137,7 @@ CONV.forEach((n, i) => { OPS[n] = [0xB0 + i, ""]; });
 for (const [n, sub] of Object.entries(_LANE_SUB)) OPS[n] = [0xFB00 | sub, _LANE_IMM.has(n) ? "b" : ""];
 export const LANE_PREFIX = 0xFB;
 
-export const BY_CODE = new Map<number, [string, string]>(
-  Object.entries(OPS).map(([name, [code, imm]]) => [code, [name, imm]]));
-
-export const LATER_TIER_OPS = new Map<number, string>();
-
-// -- byte writer / reader ------------------------------------------------------------
+// -- byte writer ---------------------------------------------------------------------
 export class Writer {
   private buf = new Uint8Array(256);
   length = 0;
@@ -265,165 +238,7 @@ export function writeVt(w: Writer, vt: VT): void {
   } else w.u8(vt);
 }
 
-export class Reader {
-  p: number;
-  end: number;
-  private dv: DataView;
-
-  constructor(public d: Uint8Array, pos = 0, end: number | null = null) {
-    this.p = pos;
-    this.end = end === null ? d.length : end;
-    this.dv = new DataView(d.buffer, d.byteOffset, d.byteLength);
-  }
-
-  eof(): boolean { return this.p >= this.end; }
-
-  need(n: number): void {
-    if (this.p + n > this.end) throw new WbcError("unexpected end of data");
-  }
-
-  u8(): number {
-    this.need(1);
-    return this.d[this.p++];
-  }
-
-  u32(): number {
-    let result = 0, shift = 0, b: number;
-    for (;;) {
-      b = this.u8();
-      result += (b & 0x7F) * 2 ** shift;
-      shift += 7;
-      if (!(b & 0x80)) break;
-      if (shift > 35) throw new WbcError("LEB128 too long");
-    }
-    if (result > 0xFFFFFFFF) throw new WbcError("u32 out of range");
-    return result;
-  }
-
-  slebBig(bits = 64): bigint {
-    let result = 0n, shift = 0n, b: number;
-    for (;;) {
-      b = this.u8();
-      result |= BigInt(b & 0x7F) << shift;
-      shift += 7n;
-      if (!(b & 0x80)) break;
-      if (shift > BigInt(bits + 7)) throw new WbcError("LEB128 too long");
-    }
-    if (b & 0x40) result -= 1n << shift;
-    return result;
-  }
-
-  sleb(bits = 32): number {
-    return Number(this.slebBig(bits));
-  }
-
-  f32(): number {
-    this.need(4);
-    const v = this.dv.getFloat32(this.p, true);
-    this.p += 4;
-    return v;
-  }
-
-  f64(): number {
-    this.need(8);
-    const v = this.dv.getFloat64(this.p, true);
-    this.p += 8;
-    return v;
-  }
-
-  i64(): bigint {
-    this.need(8);
-    const v = this.dv.getBigInt64(this.p, true);
-    this.p += 8;
-    return v;
-  }
-
-  u32le(): number {
-    this.need(4);
-    const v = this.dv.getUint32(this.p, true);
-    this.p += 4;
-    return v;
-  }
-
-  raw(n: number): Uint8Array {
-    this.need(n);
-    const v = this.d.slice(this.p, this.p + n);
-    this.p += n;
-    return v;
-  }
-
-  name(): string {
-    const n = this.u32();
-    try {
-      return fromUtf8(this.raw(n));
-    } catch (e) {
-      if (e instanceof WbcError) throw e;
-      throw new WbcError("invalid UTF-8 in name");
-    }
-  }
-
-  blob(): Uint8Array { return this.raw(this.u32()); }
-
-  vt(): VT {
-    const code = this.u8();
-    return code === REF ? Ref.of(this.u32()) : code;
-  }
-}
-
 // -- instructions --------------------------------------------------------------------
-export class Instr {
-  constructor(public pc: number, public size: number, public op: number, public name: string,
-              public imms: any[]) {}
-
-  /** Absolute pc of a label immediate. */
-  target(): number { return this.pc + this.size + this.imms[0]; }
-}
-
-export function decodeCode(code: Uint8Array): Instr[] {
-  const out: Instr[] = [];
-  const r = new Reader(code);
-  while (!r.eof()) {
-    const pc = r.p;
-    let op = r.u8();
-    if (op === LANE_PREFIX) {
-      const sub = r.u32();
-      op = 0xFB00 | sub;
-      if (!BY_CODE.has(op)) throw new WbcError(`invalid lane sub-opcode FB ${sub.toString(16).toUpperCase().padStart(2, "0")} at pc ${pc}`);
-    }
-    let name: string, imm: string;
-    if (BY_CODE.has(op)) [name, imm] = BY_CODE.get(op)!;
-    else if (LATER_TIER_OPS.has(op)) throw new WbcError(`opcode 0x${hex2(op)} (${LATER_TIER_OPS.get(op)}) is not supported by this VM`);
-    else throw new WbcError(`invalid opcode 0x${hex2(op)} at pc ${pc}`);
-    let imms: any[];
-    switch (imm) {
-      case "": imms = []; break;
-      case "L": imms = [r.sleb(32)]; break;
-      case "Lu": imms = [r.sleb(32), r.u32()]; break;
-      case "b": imms = [r.u8()]; break;
-      case "ub": imms = [r.u32(), r.u8()]; break;
-      case "u": imms = [r.u32()]; break;
-      case "uu": imms = [r.u32(), r.u32()]; break;
-      case "s": imms = [r.sleb(32)]; break;
-      case "S": imms = [r.slebBig(64)]; break;
-      case "f": imms = [r.f32()]; break;
-      case "d": imms = [r.f64()]; break;
-      case "T": {
-        const n = r.u32();
-        imms = [];
-        for (let i = 0; i < n + 1; i++) imms.push(r.sleb(32));
-        break;
-      }
-      default: throw new Error(imm);
-    }
-    out.push(new Instr(pc, r.p - pc, op, name, imms));
-  }
-  return out;
-}
-
-function hex2(n: number): string {
-  return n.toString(16).toUpperCase().padStart(2, "0");
-}
-
 export function encodeInstr(w: Writer, name: string, imms: any[]): void {
   const [code, imm] = OPS[name];
   if (code > 0xFF) {
@@ -466,23 +281,6 @@ export class WbcModule {
   data: string[] = [];
   bodies: Body[] = [];
   customs: [string, Uint8Array][] = [];
-
-  custom(name: string): Uint8Array | null {
-    for (const [n, payload] of this.customs) if (n === name) return payload;
-    return null;
-  }
-
-  /** [params, results, flags] for a function index (imports first). */
-  funcType(fidx: number): [VT[], VT[], number] {
-    if (fidx < this.imports.length) {
-      const imp = this.imports[fidx];
-      const t = this.types[imp[2]] as FuncType;
-      return [t[0], t[1], imp[3]];
-    }
-    const [t, flags] = this.funcs[fidx - this.imports.length];
-    const ft = this.types[t] as FuncType;
-    return [ft[0], ft[1], flags];
-  }
 }
 
 function writeConst(w: Writer, vt: VT, value: any): void {
@@ -499,18 +297,6 @@ function writeConst(w: Writer, vt: VT, value: any): void {
   else if (vt === F64) w.f64(value);
   else if (vt === STRING) w.u32(value);
   else throw new WbcError(`bad const type ${vt}`);
-}
-
-function readConst(r: Reader, vt: VT): any {
-  if (typeof vt === "number" && LANE_LAYOUT.has(vt))
-    return LANE_LAYOUT.get(vt)!.map((fvt) => LANE_LAYOUT.has(fvt) ? readConst(r, fvt) : r.f32());
-  if (vt instanceof Ref || vt === SIGNAL) return null;
-  if (vt === I32) return Number(r.i64());
-  if (vt === I64) return r.i64();
-  if (vt === F32) { const v = r.f32(); r.raw(4); return v; }
-  if (vt === F64) return r.f64();
-  if (vt === STRING) return r.u32();
-  throw new WbcError(`bad const type 0x${hex2(vt as number)}`);
 }
 
 export function encodeModule(m: WbcModule): Uint8Array {
@@ -628,125 +414,3 @@ export function encodeModule(m: WbcModule): Uint8Array {
   return out.bytes();
 }
 
-export function decodeModule(data: Uint8Array): WbcModule {
-  if (data.length < 12 || !MAGIC.every((b, i) => data[i] === b)) throw new WbcError("not a WBC module (bad magic)");
-  const head = new Reader(data, 4);
-  const version = head.u32le(), flags = head.u32le();
-  if (version !== VERSION) throw new WbcError(`unsupported WBC version ${version}`);
-  if (flags & ~(FLAG_HAS_SOURCE | FLAG_LANES))
-    throw new WbcError(`module requires unknown features (flags 0x${(flags >>> 0).toString(16).toUpperCase().padStart(8, "0")})`);
-  const m = new WbcModule();
-  m.flags = flags;
-  const r = new Reader(data, 12);
-  let last = 0;
-  while (!r.eof()) {
-    const sid = r.u8();
-    const size = r.u32();
-    r.need(size);
-    const s = new Reader(data, r.p, r.p + size);
-    r.p += size;
-    if (sid === SEC_CUSTOM) {
-      const name = s.name();
-      m.customs.push([name, data.slice(s.p, s.end)]);
-      continue;
-    }
-    if (sid > SEC_CODE) throw new WbcError(`unknown section id ${sid}`);
-    if (sid <= last) throw new WbcError(`section ${sid} out of order`);
-    last = sid;
-    if (sid === SEC_TYPE) {
-      for (let n = s.u32(); n > 0; n--) {
-        const code = s.u8();
-        if (code === ARRAY_TYPE) { m.types.push(new ArrayType(s.vt())); continue; }
-        if (code === MAP_TYPE) { const k = s.vt(); m.types.push(new MapType(k, s.vt())); continue; }
-        if (code === DELEGATE_TYPE) { m.types.push(new DelegateType(s.u32())); continue; }
-        if (code === DISPATCHER_TYPE) { m.types.push(new DispatcherType(s.u32())); continue; }
-        if (code === INTERFACE_TYPE) {
-          const methods: number[] = [];
-          for (let k = s.u32(); k > 0; k--) methods.push(s.u32());
-          m.types.push(new InterfaceType(methods));
-          continue;
-        }
-        if (code === SET_TYPE) { m.types.push(new SetType(s.vt())); continue; }
-        if (code === STRUCT_TYPE || code === CLASS_TYPE) {
-          let sup: number | null = null;
-          const ifaces: [number, number[]][] = [];
-          if (code === CLASS_TYPE) {
-            if (s.u8() !== 0) throw new WbcError("host class types are not supported by this VM");
-            const sp = s.u32();
-            sup = sp === 0 ? null : sp - 1;
-            for (let k = s.u32(); k > 0; k--) {
-              const iface = s.u32();
-              const impl: number[] = [];
-              for (let j = s.u32(); j > 0; j--) impl.push(s.u32());
-              ifaces.push([iface, impl]);
-            }
-          }
-          const fields: [VT, any][] = [];
-          for (let k = s.u32(); k > 0; k--) {
-            const vt = s.vt();
-            const fl = s.u8();
-            if (fl & ~1) throw new WbcError(`struct field flags 0x${hex2(fl)} are not supported`);
-            if (fl && vt instanceof Ref) throw new WbcError("a reference field cannot have a default");
-            fields.push([vt, fl ? readConst(s, vt) : null]);
-          }
-          if (code === CLASS_TYPE) {
-            const vtable: number[] = [];
-            for (let k = s.u32(); k > 0; k--) vtable.push(s.u32());
-            m.types.push(new ClassType(sup, fields, vtable, ifaces));
-          } else m.types.push(new StructType(fields));
-          continue;
-        }
-        if (code !== FUNC_TYPE) throw new WbcError(`type entry 0x${hex2(code)} is not supported by this VM`);
-        const params: VT[] = [], results: VT[] = [];
-        for (let k = s.u32(); k > 0; k--) params.push(s.vt());
-        for (let k = s.u32(); k > 0; k--) results.push(s.vt());
-        m.types.push([params, results]);
-      }
-    } else if (sid === SEC_IMPORT) {
-      for (let n = s.u32(); n > 0; n--) {
-        const mod = s.name(), fld = s.name();
-        if (s.u8() !== 0) throw new WbcError("only function imports are supported");
-        const t = s.u32();
-        m.imports.push([mod, fld, t, s.u8()]);
-      }
-    } else if (sid === SEC_FUNCTION) {
-      for (let n = s.u32(); n > 0; n--) { const t = s.u32(); m.funcs.push([t, s.u8()]); }
-    } else if (sid === SEC_GLOBAL) {
-      for (let n = s.u32(); n > 0; n--) {
-        const vt = s.vt(), mut = s.u8();
-        m.globals.push([vt, mut, readConst(s, vt)]);
-      }
-    } else if (sid === SEC_EXPORT) {
-      for (let n = s.u32(); n > 0; n--) {
-        const name = s.name(), kind = s.u8(), index = s.u32();
-        m.exports.push([name, kind, index, s.u8()]);
-      }
-    } else if (sid === SEC_DATA) {
-      for (let n = s.u32(); n > 0; n--) {
-        try {
-          m.data.push(fromUtf8(s.blob()));
-        } catch (e) {
-          if (e instanceof WbcError) throw e;
-          throw new WbcError("invalid UTF-8 in data section");
-        }
-      }
-    } else if (sid === SEC_CODE) {
-      for (let n = s.u32(); n > 0; n--) {
-        const bsize = s.u32();
-        s.need(bsize);
-        const b = new Reader(data, s.p, s.p + bsize);
-        s.p += bsize;
-        const locs: VT[] = [];
-        for (let k = b.u32(); k > 0; k--) {
-          const count = b.u32(), vt = b.vt();
-          if (count > 65536 || locs.length + count > 65536) throw new WbcError("too many locals");
-          for (let j = 0; j < count; j++) locs.push(vt);
-        }
-        const ms = b.u32(), mc = b.u32();
-        m.bodies.push(new Body(locs, ms, mc, data.slice(b.p, b.end)));
-      }
-    }
-    if (!s.eof()) throw new WbcError(`section ${sid} has trailing bytes`);
-  }
-  return m;
-}

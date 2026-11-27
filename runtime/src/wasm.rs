@@ -182,6 +182,43 @@ pub unsafe extern "C" fn wr_module_capabilities(ptr: *const u8, len: usize) -> u
     set_result(&reply_json(r))
 }
 
+/// Decode and verify a module without loading it: `{"ok": [max stack height per defined
+/// function]}` or `{"err": message}`. The compiler uses it to fill in `max_stack`.
+///
+/// # Safety
+/// `ptr` and `len` must describe readable memory.
+#[no_mangle]
+pub unsafe extern "C" fn wr_verify(ptr: *const u8, len: usize) -> usize {
+    let r = crate::wbc::decode_module(input(ptr, len))
+        .map_err(|e| e.0)
+        .and_then(|m| crate::verifier::verify(&m).map_err(|e| e.0))
+        .map(|fs| json!(fs.iter().map(|(_, h)| *h).collect::<Vec<_>>()))
+        .map_err(J::from);
+    set_result(&reply_json(r))
+}
+
+/// A module's disassembly (`wiretc dis`): `{"ok": text}` or `{"err": message}`.
+///
+/// # Safety
+/// `ptr` and `len` must describe readable memory.
+#[no_mangle]
+pub unsafe extern "C" fn wr_disassemble(ptr: *const u8, len: usize) -> usize {
+    let r = crate::disasm::disassemble(input(ptr, len)).map(J::from).map_err(|e| J::from(e.0));
+    set_result(&reply_json(r))
+}
+
+/// The signature of every native the runtime provides (see `natives::native_table`).
+#[no_mangle]
+pub extern "C" fn wr_natives() -> usize {
+    set_result(&crate::natives::native_table())
+}
+
+/// A float as Wiret writes it (section 3.2), as a JSON string; `single` for an f32.
+#[no_mangle]
+pub extern "C" fn wr_float_text(x: f64, single: u32) -> usize {
+    set_result(&J::from(crate::fmt::float_to_text(x, single != 0)))
+}
+
 /// Replay an input log (JSON) against a module: `{"ok": {"instructions": n}}`, or
 /// `{"mismatch": message}`, or `{"err": message}` for a log that cannot be read.
 ///

@@ -1,4 +1,4 @@
-/** Macro expansion, lowering and WBC emission (spec sections 4.2, 4.3 and 4.8).
+﻿/** Macro expansion, lowering and WBC emission (spec sections 4.2, 4.3 and 4.8).
  *
  * Every impure node becomes one block labelled with its (path-style) node id. A block
  * evaluates the pure subgraph feeding its inputs at that node's evaluation point, performs
@@ -9,7 +9,7 @@ import * as lanes from "./lanes.js";
 import * as wbc from "./wbc.js";
 import { check, Diag, hasErrors } from "./checker.js";
 import { Attr, Graph, Lit, Module, Node, PinRef } from "./model.js";
-import { INTERNAL, STD } from "./natives.js";
+import { internalNatives, stdNatives } from "./natives.js";
 import { layoutHash, printModule, semanticHash } from "./printer.js";
 import {
   ARRAY_MUTATORS, arrayElem, classFieldTarget, delegateSig, dispatcherParams, dispatcherTarget, enumValues, fieldPlace,
@@ -19,7 +19,7 @@ import {
 import { F32, F64, FAULT, I32, I64, SIGNAL, STRING, VT as WVT } from "./wbc.js";
 import { Project } from "./ids.js";
 import { capitalize, Counter, sha256Hex, sortedBy, utf8 } from "./pyutil.js";
-import { verify } from "./verifier.js";
+import { verifyModule } from "./vm.js";
 
 export const CONTAINER_OPS: Record<string, string> = {
   MapFind: "map.find", MapHas: "map.has", MapLength: "map.len", MapKeyAt: "map.key_at",
@@ -364,7 +364,7 @@ export class Compiler {
 
   build(lowered: FuncLowerer[]): wbc.WbcModule {
     const mod = new wbc.WbcModule();
-    const natives = { ...STD, ...INTERNAL };
+    const natives = { ...stdNatives(), ...internalNatives() };
     for (const q of this.imports) {
       let params: WVT[], results: WVT[], pure: boolean;
       if (has(natives, q)) {
@@ -422,8 +422,10 @@ export class Compiler {
     mod.customs = this.customSections(lowered, assembled);
     if (this.embed_source) mod.flags |= wbc.FLAG_HAS_SOURCE;
     if (this.uses_lanes) mod.flags |= wbc.FLAG_LANES;
-    verify(mod).forEach(([, maxH], i) => { mod.bodies[i].max_stack = maxH; });
-    verify(mod);
+    // the runtime's verifier (runtime/src/verifier.rs) checks the module and measures each
+    // function's operand stack; the second pass checks the max_stack values written
+    verifyModule(wbc.encodeModule(mod)).forEach((maxH, i) => { mod.bodies[i].max_stack = maxH; });
+    verifyModule(wbc.encodeModule(mod));
     return mod;
   }
 

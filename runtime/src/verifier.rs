@@ -1,4 +1,4 @@
-//! Single-pass bytecode verifier (spec section 5.5), a port of `src/core/verifier.ts`. The
+//! Single-pass bytecode verifier (spec section 5.5), ported from the TypeScript verifier. The
 //! messages are the same, so a module the editor rejects is rejected the same way here.
 use std::collections::HashSet;
 use std::fmt;

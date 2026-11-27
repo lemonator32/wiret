@@ -1,6 +1,6 @@
 /** The searchable node palette: what can be added to a graph, with beginner descriptions. */
 import { Graph, metaValue, Node } from "./model.js";
-import { STD } from "./natives.js";
+import { stdNatives } from "./natives.js";
 import {
   arrayElem, canConvert, isContainer, MAP_MUTATORS, MAP_PURE, mapTypes, ModuleIndex, SET_MUTATORS, SET_PURE, setElem,
   signature, STATIC_KINDS, typeChoices,
@@ -181,7 +181,7 @@ export function describe(kind: string, symbol: string | null = null, idx: Module
     return `Calls ${symbol} on any object that implements ${rpart(symbol)[0]}; the object's own class decides what runs.`;
   if (kind === "Call" && symbol) {
     const k = targs && targs.length ? `${symbol}#<${targs.join(", ")}>` : symbol;
-    const spec = has(STD, k) ? STD[k] : undefined;
+    const spec = has(stdNatives(), k) ? stdNatives()[k] : undefined;
     return spec !== undefined && spec.doc ? spec.doc : `Calls ${symbol}.`;
   }
   return (has(DESCRIBE, kind) ? DESCRIBE[kind][0] : "") ?? "";
@@ -279,7 +279,7 @@ export function items(g: Graph, idx: ModuleIndex): Item[] {
       idx.findMethod(idx.classes.get(g.owner)!.base!, g.short_name) !== null)
     out.push(item("CallParent", `CallParent ${g.short_name}`, "Call", g.short_name, null, idx));
   for (const q of sortedBy(idx.externs.keys())) out.push(item("Call", `Call ${q}`, "Call", q, null, idx));
-  for (const q of sortedBy(Object.keys(STD))) {
+  for (const q of sortedBy(Object.keys(stdNatives()))) {
     const at = q.indexOf("#<");
     const sym = at < 0 ? q : q.slice(0, at), targs = at < 0 ? "" : q.slice(at + 2);
     out.push(item("Call", `Call ${q}`, "Call", sym, targs ? targs.slice(0, -1).split(",").map((t) => t.trim()) : null, idx));

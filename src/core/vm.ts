@@ -1,4 +1,4 @@
-/** The VM the editor and `wiretc` run programs on: the Rust runtime (runtime/, `libwiret`)
+﻿/** The VM the editor and `wiretc` run programs on: the Rust runtime (runtime/, `libwiret`)
  * compiled to WebAssembly, behind the API the TypeScript VM used to have.
  *
  * Call `await init()` once before making a VM (the page's boot, `wiretc` and the tests do).
@@ -7,7 +7,6 @@
  * and lane values), maps and sets as `Map`s (a set's values are null), and `Obj`, `Delegate`,
  * `DispatcherObj`, `Signal` and `FaultValue` for the rest. */
 import * as rt from "./runtime.js";
-import { CMap, FaultValue } from "./natives.js";
 import { floatFromHex, floatHex } from "./pyutil.js";
 
 export { init, initSync } from "./runtime.js";
@@ -76,6 +75,11 @@ export class Signal {
   constructor(readonly id: number) {}
 }
 
+/** A value of type `fault` (section 4.6). */
+export class FaultValue {
+  constructor(readonly message: string, readonly code: number) {}
+}
+
 /** Decodes the runtime's JSON values, keeping one JS object per runtime object. */
 export class Decoder {
   objs = new Map<number, Obj>();
@@ -124,7 +128,6 @@ export function encodeValue(v: any): any {
   }
   if (v instanceof Obj || v instanceof Delegate || v instanceof DispatcherObj || v instanceof Signal) return { h: v.id };
   if (v instanceof FaultValue) return { fault: [v.message, v.code] };
-  if (v instanceof CMap) return { m: v.entries().map(([k, x]) => [encodeValue(k), encodeValue(x)]) };
   if (v instanceof Map) return { m: [...v].map(([k, x]) => [encodeValue(k), encodeValue(x)]) };
   if (v instanceof Set) return { m: [...v].map((k) => [encodeValue(k), null]) };
   if (Array.isArray(v) || ArrayBuffer.isView(v)) return Array.from(v as ArrayLike<any>, encodeValue);
@@ -350,6 +353,14 @@ export class VM {
 function trapError(e: Error): WiretError {
   if (/stack|recursion/i.test(e.message)) return new WiretError(STATUS_FAULT, "stack overflow");
   return new WiretError(STATUS_API, `the runtime stopped: ${e.message}`);
+}
+
+/** Verify a module with the runtime's verifier: the highest the operand stack gets in each
+ * defined function. Throws a WiretError (WR_ERR_VERIFY) for a module that fails. */
+export function verifyModule(data: Uint8Array): number[] {
+  const r = rt.verify(data);
+  if ("err" in r) throw new WiretError(STATUS_VERIFY, r.err);
+  return r.ok;
 }
 
 /** wr_module_each_capability before loading. */

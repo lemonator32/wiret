@@ -1,6 +1,8 @@
 //! The Wiret bytecode runtime: decodes, verifies, links and runs WBC 1 modules (the `.wbc`
 //! files `wiretc build` writes). This is the runtime the reference specification calls
-//! `libwiret` (sections 5 and 6), ported from the TypeScript VM the editor used before.
+//! `libwiret` (sections 5 and 6), which replaced the TypeScript VM the editor used before.
+//! The TypeScript compiler relies on it to verify what it builds, and the editor to
+//! disassemble and run it.
 //!
 //! The same crate serves three hosts:
 //!
@@ -18,6 +20,7 @@
 //! ```
 pub mod bridge;
 pub mod detmath;
+pub mod disasm;
 pub mod fmt;
 pub mod lanes;
 pub mod log;

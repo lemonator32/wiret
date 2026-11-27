@@ -25,6 +25,10 @@ interface Exports {
   wr_hook_view(kind: number, arg: number): number;
   wr_module_capabilities(ptr: number, len: number): number;
   wr_replay(dp: number, dl: number, lp: number, ll: number): number;
+  wr_verify(ptr: number, len: number): number;
+  wr_disassemble(ptr: number, len: number): number;
+  wr_natives(): number;
+  wr_float_text(x: number, single: number): number;
 }
 
 let compiled: WebAssembly.Module | null = null;
@@ -153,6 +157,28 @@ export function hookView(kind: number, arg = 0): any {
 
 export function moduleCapabilities(bytes: Uint8Array): any {
   return guard(() => result(withBytes(bytes, (p, l) => rt().wr_module_capabilities(p, l))));
+}
+
+/** Verify a module: `{ok: max stack height per defined function}` or `{err: message}`. */
+export function verify(bytes: Uint8Array): any {
+  return guard(() => result(withBytes(bytes, (p, l) => rt().wr_verify(p, l))));
+}
+
+/** A module's disassembly: `{ok: text}` or `{err: message}`. */
+export function disassemble(bytes: Uint8Array): any {
+  return guard(() => result(withBytes(bytes, (p, l) => rt().wr_disassemble(p, l))));
+}
+
+let nativeTable: any = null;
+/** The signature of every native the runtime provides, by group (std, internal, host). */
+export function natives(): any {
+  if (nativeTable === null) nativeTable = guard(() => result(rt().wr_natives()));
+  return nativeTable;
+}
+
+/** A float as Wiret writes it (section 3.2). */
+export function floatText(x: number, single: boolean): string {
+  return guard(() => result(rt().wr_float_text(x, single ? 1 : 0)));
 }
 
 export function replay(bytes: Uint8Array, log: unknown): any {

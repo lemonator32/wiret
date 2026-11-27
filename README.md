@@ -79,7 +79,7 @@ Wiret was designed to address exactly that gap. It keeps the graph model, but ma
 
 ## The app (TypeScript)
 
-The Wiret editor, compiler, verifier, VM and `wiretc` toolchain in TypeScript. One codebase
+The Wiret editor, compiler and `wiretc` toolchain in TypeScript, running programs on the Rust runtime. One codebase
 serves three targets:
 
 | Target | What runs it | Entry point |
@@ -144,7 +144,7 @@ float `repr` and `%g`, code-point string comparison, `difflib`, `decimal`).
 [`runtime/`](runtime/) is the `.wbc` runtime as a Rust crate, `wiret-runtime`: it decodes,
 verifies, links and runs WBC 1 modules, with fibers and virtual time, fuel, faults with node
 tracebacks, deterministic mode (bundled math, in integer arithmetic) and input-log replay. It
-is a port of the TypeScript VM, and gives the same output, results, faults, instruction counts
+replaced the TypeScript VM, and gives the same output, results, faults, instruction counts
 and fuel for every lesson and example. It is what a game engine embeds. It is used three ways:
 
 | Host | How |

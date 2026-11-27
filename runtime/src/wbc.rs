@@ -1,4 +1,4 @@
-//! WBC 1 binary format (spec section 5): value types, the section container and instruction
+﻿//! WBC 1 binary format (spec section 5): value types, the section container and instruction
 //! decoding. A port of `src/core/wbc.ts` (the decoding half; the TypeScript compiler keeps the
 //! encoder).
 //!
@@ -133,20 +133,25 @@ impl TypeEntry {
 
 /// The name of a value type, for messages.
 pub fn vt_name(vt: Vt, types: &[TypeEntry]) -> String {
-    vt_name_depth(vt, types, 0)
+    vt_name_with(vt, types, &HashMap::new())
 }
 
-fn vt_name_depth(vt: Vt, types: &[TypeEntry], depth: usize) -> String {
+/// The name of a value type, with class and interface types named from `classes` (the
+/// module's `name` section), as the disassembler writes them.
+pub fn vt_name_with(vt: Vt, types: &[TypeEntry], classes: &HashMap<u32, String>) -> String {
+    vt_name_depth(vt, types, classes, 0)
+}
+
+fn vt_name_depth(vt: Vt, types: &[TypeEntry], classes: &HashMap<u32, String>, depth: usize) -> String {
+    let sub = |x: Vt| vt_name_depth(x, types, classes, depth + 1);
     match vt {
         Vt::Ref(t) => match types.get(t as usize) {
-            Some(TypeEntry::Array(e)) if depth < 8 => format!("array#<{}>", vt_name_depth(*e, types, depth + 1)),
+            Some(TypeEntry::Array(e)) if depth < 8 => format!("array#<{}>", sub(*e)),
             Some(TypeEntry::Struct(_)) => format!("struct {t}"),
-            Some(TypeEntry::Class(_)) => format!("class {t}"),
-            Some(TypeEntry::Interface(_)) => format!("interface {t}"),
-            Some(TypeEntry::Map(k, v)) if depth < 8 => {
-                format!("map#<{}, {}>", vt_name_depth(*k, types, depth + 1), vt_name_depth(*v, types, depth + 1))
-            }
-            Some(TypeEntry::Set(e)) if depth < 8 => format!("set#<{}>", vt_name_depth(*e, types, depth + 1)),
+            Some(TypeEntry::Class(_)) => classes.get(&t).cloned().unwrap_or_else(|| format!("class {t}")),
+            Some(TypeEntry::Interface(_)) => classes.get(&t).cloned().unwrap_or_else(|| format!("interface {t}")),
+            Some(TypeEntry::Map(k, v)) if depth < 8 => format!("map#<{}, {}>", sub(*k), sub(*v)),
+            Some(TypeEntry::Set(e)) if depth < 8 => format!("set#<{}>", sub(*e)),
             _ => format!("ref {t}"),
         },
         Vt::Code(c) => match vt {

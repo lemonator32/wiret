@@ -22,86 +22,10 @@ function enc(v: unknown): string {
   return "o" + JSON.stringify(v);
 }
 
-// -- integers -------------------------------------------------------------------------------
-export function floorDiv(a: number, b: number): number;
-export function floorDiv(a: bigint, b: bigint): bigint;
-export function floorDiv(a: any, b: any): any {
-  if (typeof a === "bigint") {
-    const q = a / b;
-    return (a % b !== 0n && (a < 0n) !== (b < 0n)) ? q - 1n : q;
-  }
-  return Math.floor(a / b);
-}
-
-export function pyMod(a: number, b: number): number;
-export function pyMod(a: bigint, b: bigint): bigint;
-export function pyMod(a: any, b: any): any {
-  if (typeof a === "bigint") {
-    const r = a % b;
-    return r !== 0n && (r < 0n) !== (b < 0n) ? r + b : r;
-  }
-  if (Number.isInteger(a) && Number.isInteger(b)) {
-    const r = a % b;
-    return r !== 0 && (r < 0) !== (b < 0) ? r + b : r;
-  }
-  // Python float %: the result has the sign of b
-  const r = a % b;
-  if (r !== 0 && (r < 0) !== (b < 0)) return r + b;
-  return r === 0 ? Math.sign(b) * 0 : r;
-}
-
-/** Python's round(x) on a float: to the nearest integer, ties to even. */
-export function pyRound(x: number): number {
-  if (!Number.isFinite(x)) return x;
-  if (Math.abs(x) >= 2 ** 52) return x;
-  const f = Math.floor(x);
-  const d = x - f;
-  let r: number;
-  if (d > 0.5) r = f + 1;
-  else if (d < 0.5) r = f;
-  else r = f % 2 === 0 ? f : f + 1;
-  return r === 0 ? (x < 0 || Object.is(x, -0) ? -0 : 0) : r;
-}
-
-export function bitLength(n: bigint): number {
-  if (n < 0n) n = -n;
-  return n === 0n ? 0 : n.toString(2).length;
-}
-
-export function toBig(v: number | bigint): bigint {
-  return typeof v === "bigint" ? v : BigInt(v);
-}
-
 // -- floats ---------------------------------------------------------------------------------
 export const f32 = Math.fround;
 
 const buf = new DataView(new ArrayBuffer(8));
-
-export function f32Bits(x: number): number {           // as a signed i32, like struct '<i'
-  buf.setFloat32(0, x, true);
-  return buf.getInt32(0, true);
-}
-
-export function f32FromBits(b: number): number {
-  buf.setInt32(0, b | 0, true);
-  return buf.getFloat32(0, true);
-}
-
-export function f64Bits(x: number): bigint {           // as a signed i64, like struct '<q'
-  buf.setFloat64(0, x, true);
-  return buf.getBigInt64(0, true);
-}
-
-export function f64FromBits(b: bigint): number {
-  buf.setBigInt64(0, BigInt.asIntN(64, b), true);
-  return buf.getFloat64(0, true);
-}
-
-export function copysign(x: number, y: number): number {
-  const neg = y < 0 || Object.is(y, -0) || (Number.isNaN(y) && f64Bits(y) < 0n);
-  const ax = Math.abs(x);
-  return neg ? -ax : ax;
-}
 
 /** The exact decimal value of a finite double: digits (no leading zeros, "0" for zero) and
  * the power of ten of the last digit, so value = digits * 10^exp. */
@@ -118,14 +42,6 @@ function exactDecimal(x: number): [string, number] {
   if (e >= 0) return [(mant << BigInt(e)).toString(), 0];
   const digits = (mant * 5n ** BigInt(-e)).toString();
   return [digits, e];
-}
-
-/** The exact decimal value of a finite double, as a string decimal.js reads exactly (Python's
- * Decimal(float) is exact too). */
-export function exactDecimalString(x: number): string {
-  const sign = x < 0 || Object.is(x, -0) ? "-" : "";
-  const [d, e] = exactDecimal(x);
-  return e === 0 ? sign + d : `${sign}${d}e${e}`;
 }
 
 /** Python's float.hex(). */
@@ -154,23 +70,6 @@ export function floatFromHex(s: string): number {
   const mant = BigInt("0x" + m[3]) + (m[2] === "1" ? 1n << BigInt(m[3].length * 4) : 0n);
   const v = Number(mant) * 2 ** (parseInt(m[4], 10) - m[3].length * 4);
   return m[1] ? -v : v;
-}
-
-/** Round the exact value of |x| to `sig` significant digits, ties to even. Returns the digit
- * string (exactly `sig` digits) and the decimal exponent of the first digit. */
-function roundSig(x: number, sig: number): [string, number] {
-  const [d, e] = exactDecimal(x);
-  if (d === "0") return ["0".repeat(sig), 0];
-  let point = d.length + e - 1;                     // exponent of the first digit
-  if (d.length <= sig) return [d + "0".repeat(sig - d.length), point];
-  let head = BigInt(d.slice(0, sig));
-  const rest = d.slice(sig);
-  const first = rest.charCodeAt(0) - 48;
-  const tail = /[1-9]/.test(rest.slice(1));
-  if (first > 5 || (first === 5 && (tail || (head & 1n) === 1n))) head += 1n;
-  let s = head.toString();
-  if (s.length > sig) { s = s.slice(0, sig); point += 1; }
-  return [s, point];
 }
 
 /** The shortest digits that read back as x, and the exponent of the first digit. */
@@ -213,23 +112,6 @@ function fixed(digits: string, point: number, dotZero: boolean): string {
   return s;
 }
 
-/** Python's format(x, f".{p}g"). */
-export function formatG(x: number, p: number): string {
-  if (Number.isNaN(x)) return "nan";
-  if (x === Infinity) return "inf";
-  if (x === -Infinity) return "-inf";
-  if (p === 0) p = 1;
-  const sign = x < 0 || Object.is(x, -0) ? "-" : "";
-  if (x === 0) return sign + "0";
-  let [digits, point] = roundSig(x, p);
-  digits = digits.replace(/0+$/, "") || "0";
-  if (point < -4 || point >= p) {
-    const mant = digits.length > 1 ? digits[0] + "." + digits.slice(1) : digits;
-    return sign + mant + "e" + expText(point);
-  }
-  return sign + fixed(digits, point, false);
-}
-
 /** Python's float(s) for the decimal forms the prototype produces and parses. */
 export function parseFloatPy(s: string): number {
   const t = s.trim().toLowerCase().replace(/_/g, "");
@@ -249,22 +131,6 @@ const lenient = new TextDecoder("utf-8");
 
 export function utf8(s: string): Uint8Array {
   return encoder.encode(s);
-}
-
-export function fromUtf8(b: Uint8Array, replace = false): string {
-  return (replace ? lenient : strict).decode(b);
-}
-
-export function utf8Len(s: string): number {
-  let n = 0;
-  for (let i = 0; i < s.length; i++) {
-    const c = s.charCodeAt(i);
-    if (c < 0x80) n += 1;
-    else if (c < 0x800) n += 2;
-    else if (c >= 0xD800 && c <= 0xDBFF && i + 1 < s.length) { n += 4; i++; }
-    else n += 3;
-  }
-  return n;
 }
 
 export function cpLen(s: string): number {

@@ -1,10 +1,10 @@
-/** The node registry (spec section 3.5): pin names, types, defaults and purity.
+﻿/** The node registry (spec section 3.5): pin names, types, defaults and purity.
  *
  * Static kinds are described as data. Kinds whose pins depend on context (Entry, Return,
  * Call, Macro, Exit, the variable accessors) are expanded by `signature`. */
 import { DEFAULTS as LANE_DEFAULTS, LANE_FIELDS, LANE_TYPES, VECTORS } from "./lanes.js";
 import { Class, Const, Dispatcher, Enum, Extern, Field, Graph, Interface, Lit, Module, Node, Struct, Var } from "./model.js";
-import { STD } from "./natives.js";
+import { stdNatives } from "./natives.js";
 import { CONTENT } from "./content.gen.js";
 import { deepcopy, key, sortedBy } from "./pyutil.js";
 import { parse } from "./parser.js";
@@ -619,8 +619,8 @@ export class ModuleIndex {
   callee(symbol: string, targs: string[] = []): Callee | null {
     if (targs.length) {
       const k = `${symbol}#<${targs.join(", ")}>`;
-      if (!has(STD, k)) return null;
-      const n = STD[k];
+      if (!has(stdNatives(), k)) return null;
+      const n = stdNatives()[k];
       return new Callee(k, "native", n.params.map(([a, t]) => new Pin(a, t)), n.results.map(([a, t]) => new Pin(a, t)), n.purity);
     }
     const s = this._strip(symbol);
@@ -648,8 +648,8 @@ export class ModuleIndex {
       return new Callee(symbol, "extern", e.params.map((p) => new Pin(p.name, p.type, p.default_)),
         (e.results ?? []).map((r) => new Pin(r.name, r.type)), purity);
     }
-    if (has(STD, symbol)) {
-      const n = STD[symbol];
+    if (has(stdNatives(), symbol)) {
+      const n = stdNatives()[symbol];
       return new Callee(symbol, "native", n.params.map(([a, t]) => new Pin(a, t)), n.results.map(([a, t]) => new Pin(a, t)), n.purity);
     }
     return null;
@@ -866,7 +866,7 @@ export function signature(node: Node, graph: Graph, idx: ModuleIndex): Sig {
   if (k === "Call") {
     const c = idx.callee(node.symbol ?? "", node.targs);
     if (c === null) {
-      const generic = Object.keys(STD).filter((q) => q.startsWith(`${node.symbol}#<`));
+      const generic = Object.keys(stdNatives()).filter((q) => q.startsWith(`${node.symbol}#<`));
       if (generic.length && !node.targs.length)
         sig.error = ["E0502", `'${node.symbol}' needs a type argument, as in 'Call ${generic[0]}'`];
       else if (generic.length)
@@ -1357,8 +1357,8 @@ export function registryJson(): Record<string, unknown> {
   }
   for (const k of sortedBy(Object.keys(CONTEXT_KINDS)))
     kinds.push({ kind: k, display: k, category: CONTEXT_KINDS[k], purity: "context", pins: "derived from the symbol or the enclosing graph" });
-  const natives = sortedBy(Object.keys(STD)).map((n) => {
-    const s = STD[n];
+  const natives = sortedBy(Object.keys(stdNatives())).map((n) => {
+    const s = stdNatives()[n];
     return { name: n, purity: s.purity, params: s.params.map(([a, t]) => ({ name: a, type: t })),
              results: s.results.map(([a, t]) => ({ name: a, type: t })) };
   });

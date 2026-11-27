@@ -1,4 +1,4 @@
-//! The VM: loads, verifies, links and interprets WBC modules (spec sections 5 and 6), a port of
+﻿//! The VM: loads, verifies, links and interprets WBC modules (spec sections 5 and 6), a port of
 //! `src/core/vm.ts`.
 //!
 //! It follows the C API's model: [`Vm::load`] is `wr_load` (decode, verify, link), [`Vm::call`]
@@ -535,13 +535,14 @@ impl Defaults<'_> {
 }
 
 // -- custom sections ---------------------------------------------------------------------------
-type DebugTable = HashMap<usize, (String, Vec<(usize, String)>, Vec<String>)>;
+/// function index -> (graph, (pc, node id) entries, node table)
+pub type DebugTable = HashMap<usize, (String, Vec<(usize, String)>, Vec<String>)>;
 
 #[derive(Default)]
 pub struct Customs {
     pub names: HashMap<usize, String>,
     pub local_names: HashMap<usize, IndexMap<u32, String>>,
-    debug: DebugTable,
+    pub debug: DebugTable,
     pub meta: IndexMap<String, String>,
     pub class_names: HashMap<u32, (String, Vec<String>)>,
 }
@@ -658,7 +659,7 @@ fn parse_steps(m: &WbcModule, debug: &DebugTable, section: &str) -> Result<HashM
     Ok(out)
 }
 
-fn parse_global_names(m: &WbcModule) -> IndexMap<String, usize> {
+pub fn parse_global_names(m: &WbcModule) -> IndexMap<String, usize> {
     let parse = || -> Result<IndexMap<String, usize>, WbcError> {
         let mut out = IndexMap::new();
         let Some(p) = m.custom("name") else { return Ok(out) };
@@ -766,7 +767,7 @@ pub struct Vm {
     pub fuel_limit: i64,
     pub fuel: i64,
     hook: Option<Hook>,
-    natives: HashMap<String, NativeSpec>,
+    natives: IndexMap<String, NativeSpec>,
     granted: HashSet<String>,
     interrupted: Arc<AtomicBool>,
     pub stats: Stats,
@@ -860,7 +861,7 @@ impl Vm {
         Ok(())
     }
 
-    pub fn natives(&self) -> &HashMap<String, NativeSpec> {
+    pub fn natives(&self) -> &IndexMap<String, NativeSpec> {
         &self.natives
     }
 
