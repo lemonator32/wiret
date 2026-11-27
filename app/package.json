@@ -1,0 +1,40 @@
+{
+  "name": "wiret",
+  "version": "0.12.0",
+  "private": true,
+  "type": "module",
+  "description": "Wiret graph editor, compiler and VM in TypeScript, for the web and (with Tauri) the desktop",
+  "scripts": {
+    "content": "node scripts/embed.mjs",
+    "predev": "npm run content",
+    "dev": "vite",
+    "prebuild": "npm run content",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "pretypecheck": "npm run content",
+    "typecheck": "tsc --noEmit",
+    "pretest": "npm run content",
+    "test": "vitest run",
+    "golden": "python scripts/golden.py print check run disasm web edits",
+    "prewiretc": "npm run content",
+    "wiretc": "tsx src/cli/wiretc.ts",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "@tauri-apps/api": "2.12.5",
+    "@tauri-apps/plugin-dialog": "2.8.4",
+    "@tauri-apps/plugin-fs": "2.7.1",
+    "decimal.js": "10.6.0",
+    "pako": "2.1.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.12.6",
+    "@types/node": "24.19.4",
+    "@types/pako": "2.0.4",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vite": "7.3.8",
+    "vitest": "4.1.12"
+  }
+}

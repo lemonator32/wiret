@@ -1,0 +1,5 @@
+node_modules/
+dist/
+scratch/
+# made from content/ by scripts/embed.mjs before dev, build, test and wiretc
+src/core/content.gen.ts
