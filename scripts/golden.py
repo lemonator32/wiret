@@ -1,10 +1,10 @@
 """Writes test/golden/*.json: what the Python prototype produces for every content file, so
 the TypeScript tests can check the port gives the same text, bytes and results.
-  python scripts/golden.py   (run from app/)"""
+  python scripts/golden.py   (run from the repository root)"""
 import json, os, sys, base64
 HERE = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.dirname(HERE)
-sys.path.insert(0, os.path.join(APP, "..", "prototype"))
+sys.path.insert(0, os.path.join(APP, "prototype"))
 from wiret.parser import parse, ParseError
 
 def files():
