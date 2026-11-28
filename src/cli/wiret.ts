@@ -21,6 +21,7 @@ import { init as initRuntime, moduleCapabilities, replay, ReplayMismatch, VM, Wi
 import { sortedBy } from "../core/pyutil.js";
 import pkg from "../../package.json" with { type: "json" };
 import { repl } from "./repl.js";
+import { explain, projectFiles, scaffold } from "./project.js";
 
 export const VERSION: string = pkg.version;
 
@@ -32,6 +33,9 @@ const COMMANDS: [string, string, string][] = [
   ["build", "FILE [-o OUT.wbc] [--no-source] [--export-all]", "compile and verify to bytecode"],
   ["check", "[--json] FILE", "diagnostics (with E0140/W0202 inside a project)"],
   ["fmt", "[--check] [--assign-ids] [--convert-comments | --drop-comments] FILE", "rewrite in canonical form"],
+  ["explain", "[CODE...]", "what a diagnostic code (E0310) or runtime status (WR_ERR_FUEL) means; all codes without one"],
+  ["new", "DIR [--no-git]", "create a project: wiret.toml, src/NAME/main.wiret, and the Git setup"],
+  ["init", "[DIR] [--no-git]", "make an existing directory a project, keeping files already there"],
   ["dis", "FILE.wbc", "disassemble with node ids"],
   ["verify", "FILE.wbc", "run only the verifier"],
   ["replay", "FILE LOG.json", "rerun a recorded deterministic run and compare"],
@@ -98,10 +102,10 @@ function git(args: string[], cwd: string, okFail = false): string | null {
 
 class GitError extends Error {}
 
-function initGit(): number {
+function initGit(dir = process.cwd()): number {
   let top: string;
   try {
-    top = git(["rev-parse", "--show-toplevel"], process.cwd())!.trim();
+    top = git(["rev-parse", "--show-toplevel"], dir)!.trim();
   } catch {
     err("not inside a Git repository");
     return 2;
@@ -203,7 +207,7 @@ interface Args { _: string[]; flags: Set<string>; opts: Map<string, string[]> }
 
 const VALUE_OPTS = new Set(["-o", "--output", "--fuel", "--grant", "--record", "--check", "--project"]);
 const BOOL_OPTS = new Set(["--json", "--check", "--assign-ids", "--convert-comments", "--drop-comments", "--no-source", "--export-all",
-  "--sandbox", "--deterministic", "--flow", "--raw", "--dry-run", "--record"]);
+  "--sandbox", "--deterministic", "--flow", "--raw", "--dry-run", "--record", "--no-git"]);
 
 function parseArgs(cmd: string, argv: string[]): Args {
   const a: Args = { _: [], flags: new Set(), opts: new Map() };
@@ -265,6 +269,8 @@ export function main(argv: string[]): number {
       const [m] = load(file);
       const diags = check(m, false, findProject(file));
       for (const d of diags) out((a.flags.has("--json") ? d.toJson() : d.toString()) + "\n");
+      if (diags.length && !a.flags.has("--json") && process.stdout.isTTY)
+        err(`(wiret explain ${diags[0].code} says more about a code)`);
       return hasErrors(diags) ? 1 : 0;
     }
     case "fmt": {
@@ -322,6 +328,29 @@ export function main(argv: string[]): number {
     }
     case "init-git":
       return initGit();
+    case "explain":
+      return explain(a._, { out, err: (s) => process.stderr.write(s) });
+    case "new":
+    case "init": {
+      const dir = cmd === "new" ? pos(a, 1, "DIR")[0] : a._[0] ?? ".";
+      const io = { out, err: (s: string) => process.stderr.write(s) };
+      const written = scaffold(dir, cmd === "new", io);
+      if (written === null) return 2;
+      const shown = path.relative(process.cwd(), path.resolve(dir)) || ".";
+      out(`created a Wiret project in ${shown}\n`);
+      for (const f of written) out(`  ${f}\n`);
+      if (!a.flags.has("--no-git")) {
+        const inRepo = git(["rev-parse", "--show-toplevel"], dir, true) !== null;
+        if (!inRepo && git(["init", "-q"], dir, true) === null) err("git is not available; skipped the Git setup (run wiret init-git later)");
+        else {
+          if (!inRepo) out("  initialized a Git repository\n");
+          initGit(dir);
+        }
+      }
+      const main = Object.keys(projectFiles(dir)).find((f) => f.endsWith(".wiret"))!;
+      out(`\nnext:\n${shown === "." ? "" : `  cd ${shown}\n`}  wiret run ${main}\n`);
+      return 0;
+    }
     case "edit": {
       const [file, reqPath] = pos(a, 2, "FILE and REQUEST");
       const reqText = reqPath === "-" ? readFileSync(0, "utf8") : readFileSync(reqPath, "utf8");
