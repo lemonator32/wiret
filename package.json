@@ -3,7 +3,16 @@
   "version": "0.12.0",
   "private": true,
   "type": "module",
-  "description": "Wiret graph editor, compiler and VM in TypeScript, for the web and (with Tauri) the desktop",
+  "description": "Wiret: compile, run, check and format programs in the Wiret visual scripting language",
+  "bin": {
+    "wiret": "cli/wiret.js"
+  },
+  "files": [
+    "cli/"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "content": "node scripts/embed.mjs && node scripts/runtime.mjs",
     "predev": "npm run content",
@@ -17,23 +26,33 @@
     "test": "vitest run",
     "golden": "python scripts/golden.py print check run disasm web edits",
     "prewiret": "npm run content",
-    "wiret": "tsx src/cli/wiret.ts",
+    "wiret": "tsx src/cli/bin.ts",
+    "precli": "npm run content",
+    "cli": "node scripts/cli.mjs",
+    "prepack": "npm run cli",
     "tauri": "tauri"
   },
-  "dependencies": {
+  "devDependencies": {
     "@noble/hashes": "2.4.0",
     "@tauri-apps/api": "2.12.5",
+    "@tauri-apps/cli": "2.12.6",
     "@tauri-apps/plugin-dialog": "2.8.4",
     "@tauri-apps/plugin-fs": "2.7.1",
-    "pako": "2.1.0"
-  },
-  "devDependencies": {
-    "@tauri-apps/cli": "2.12.6",
     "@types/node": "24.19.4",
     "@types/pako": "2.0.4",
+    "esbuild": "0.28.2",
+    "pako": "2.1.0",
     "tsx": "4.23.15",
     "typescript": "5.9.3",
     "vite": "7.3.8",
     "vitest": "4.1.12"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lemonator32/wiret.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lemonator32/wiret/issues"
+  },
+  "homepage": "https://github.com/lemonator32/wiret#readme"
 }

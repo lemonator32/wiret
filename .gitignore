@@ -3,6 +3,8 @@
 __pycache__
 node_modules/
 dist/
+# the bundled command line, made by scripts/cli.mjs (npm run cli)
+cli/
 scratch/
 # made from content/ by scripts/embed.mjs before dev, build, test and wiret
 src/core/content.gen.ts

@@ -1,29 +1,9 @@
-#!/usr/bin/env node
-/** wiret: the Wiret command-line toolchain (spec section 7), on Node.
- *
- *   wiret check [--json] FILE           diagnostics (with E0140/W0202 inside a project)
- *   wiret fmt [--check] [--assign-ids] [--convert-comments | --drop-comments] FILE
- *   wiret build FILE [-o OUT.wbc] [--no-source] [--export-all]
- *   wiret dis FILE.wbc                  disassemble with node ids
- *   wiret verify FILE.wbc               run only the verifier
- *   wiret run [--grant CAP]... [--sandbox] [--deterministic [--record LOG.json]] [--fuel N]
- *              FILE.wiret|FILE.wbc FUNC [ARGS...]
- *   wiret replay FILE.wiret|FILE.wbc LOG.json
- *   wiret caps FILE.wiret|FILE.wbc      the capabilities a module needs (wr.caps)
- *   wiret hash FILE                     semantic and layout hashes
- *   wiret view --flow FILE              reading view in flow order
- *   wiret schema --json                 the node registry
- *   wiret diff [--raw] A B              node-aware semantic diff in flow order
- *   wiret merge BASE OURS THEIRS [-o OUT]
- *   wiret init-git                      set up the merge driver, textconv and wiret.ids union
- *   wiret edit FILE REQUEST.json|- [--dry-run]
- *   wiret ids --check BASE[..HEAD] [--record] [--project DIR]
- */
+/** wiret: the Wiret command-line toolchain (spec section 7), on Node. `bin.ts` starts it;
+ * `COMMANDS` below is the command list `wiret --help` prints. */
 import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
 import { check, hasErrors } from "../core/checker.js";
 import { compileModule } from "../core/compiler.js";
 import { disassemble } from "../core/disasm.js";
@@ -39,6 +19,30 @@ import { registryJson } from "../core/registry.js";
 import { formatResults, parseArgsFor, runFunction, ValueError } from "../core/runner.js";
 import { init as initRuntime, moduleCapabilities, replay, ReplayMismatch, VM, WiretError } from "../core/vm.js";
 import { sortedBy } from "../core/pyutil.js";
+import pkg from "../../package.json" with { type: "json" };
+
+export const VERSION: string = pkg.version;
+
+/** [name, synopsis after the name, what it does], in the order `wiret --help` lists them. */
+const COMMANDS: [string, string, string][] = [
+  ["run", "[--grant CAP]... [--sandbox] [--deterministic [--record LOG.json]] [--fuel N] FILE [FUNC [ARGS...]]",
+    "compile FILE.wiret (or load FILE.wbc) and run FUNC, Main by default"],
+  ["build", "FILE [-o OUT.wbc] [--no-source] [--export-all]", "compile and verify to bytecode"],
+  ["check", "[--json] FILE", "diagnostics (with E0140/W0202 inside a project)"],
+  ["fmt", "[--check] [--assign-ids] [--convert-comments | --drop-comments] FILE", "rewrite in canonical form"],
+  ["dis", "FILE.wbc", "disassemble with node ids"],
+  ["verify", "FILE.wbc", "run only the verifier"],
+  ["replay", "FILE LOG.json", "rerun a recorded deterministic run and compare"],
+  ["caps", "FILE", "the capabilities a module needs (wr.caps)"],
+  ["hash", "FILE", "semantic and layout hashes"],
+  ["view", "--flow FILE", "reading view in flow order"],
+  ["schema", "--json", "the node registry"],
+  ["diff", "[--raw] A B", "node-aware semantic diff in flow order"],
+  ["merge", "BASE OURS THEIRS [-o OUT]", "keyed three-way merge (the Git merge driver)"],
+  ["init-git", "", "set up the merge driver, textconv and wiret.ids union"],
+  ["edit", "FILE REQUEST.json|- [--dry-run]", "apply an editing-protocol request (section 7.2)"],
+  ["ids", "--check BASE[..HEAD] [--record] [--project DIR]", "check that deleted ids are retired and never reused"],
+];
 
 const nodeFs: FileSystem = {
   exists: (p) => existsSync(p),
@@ -100,7 +104,8 @@ function initGit(): number {
     err("not inside a Git repository");
     return 2;
   }
-  const me = `"${process.execPath}" "${fileURLToPath(import.meta.url)}"`.replace(/\\/g, "/");
+  // The script node started: cli/wiret.js when installed, src/cli/bin.ts from source.
+  const me = `"${process.execPath}" "${path.resolve(process.argv[1])}"`.replace(/\\/g, "/");
   const runner = me.endsWith('.ts"') ? `npx tsx ${me.split(" ").slice(1).join(" ")}` : me;
   for (const [k, v] of [["merge.wiret.name", "Wiret keyed merge (wiret merge)"], ["merge.wiret.driver", `${runner} merge %O %A %B`],
                         ["diff.wiret.textconv", `${runner} view --flow`]])
@@ -221,24 +226,37 @@ function parseArgs(cmd: string, argv: string[]): Args {
   return a;
 }
 
-function usage(msg?: string): never {
-  const doc = readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").filter((l) => l.startsWith(" *   wiret")).map((l) => l.slice(3));
+/** The help for one command, or for all of them; `msg` makes it an error (exit 2, on stderr). */
+function usage(msg?: string, cmd?: string): never {
+  const one = COMMANDS.find(([n]) => n === cmd);
+  const text = one
+    ? `usage: wiret ${one[0]} ${one[1]}\n\n${one[2]}`
+    : `wiret ${VERSION}: the Wiret toolchain\n\nusage: wiret COMMAND [OPTIONS] ARGS\n\n` +
+      COMMANDS.map(([n, , what]) => `  ${n.padEnd(9)} ${what}`).join("\n") +
+      `\n\nwiret COMMAND --help shows a command's options; wiret --version prints the version.`;
   if (msg) err(`wiret: ${msg}`);
-  (msg ? err : (s: string) => out(s + "\n"))("usage:\n" + doc.join("\n"));
+  (msg ? err : (s: string) => out(s + "\n"))(text);
   throw new Exit(msg ? 2 : 0);
 }
 
 const opt = (a: Args, ...names: string[]) => names.map((n) => a.opts.get(n)?.at(-1)).find((v) => v !== undefined) ?? null;
+let current = "";
 const pos = (a: Args, n: number, what: string) => {
-  if (a._.length < n) usage(`missing ${what}`);
+  if (a._.length < n) usage(`missing ${what}`, current);
   return a._;
 };
 
 export function main(argv: string[]): number {
   const cmd = argv[0];
   if (!cmd || cmd === "-h" || cmd === "--help") usage();
+  if (cmd === "-V" || cmd === "--version") {
+    out(`wiret ${VERSION}\n`);
+    return 0;
+  }
+  if (cmd === "help") usage(undefined, argv[1]);
+  current = cmd;
   const a = parseArgs(cmd, argv.slice(1));
-  if (a.flags.has("-h") || a.flags.has("--help")) usage();
+  if (a.flags.has("-h") || a.flags.has("--help")) usage(undefined, cmd);
   switch (cmd) {
     case "check": {
       const [file] = pos(a, 1, "FILE");
@@ -355,7 +373,7 @@ export function main(argv: string[]): number {
       out("ok\n");
       return 0;
     case "run": {
-      const [file, func, ...args] = pos(a, 2, "FILE and FUNC");
+      const [file, func = "Main", ...args] = pos(a, 1, "FILE");
       let data: Uint8Array, m: Module | null;
       if (file.endsWith(".wbc")) {
         data = new Uint8Array(readFileSync(file));
@@ -380,7 +398,10 @@ export function main(argv: string[]): number {
         if (vm.time) out(`(finished at ${+vm.time.toPrecision(6)} s of virtual time)\n`);
       } catch (e) {
         if (!(e instanceof WiretError || e instanceof ValueError)) throw e;
-        err(e.toString().replace(/^Error: /, ""));
+        const msg = e.toString().replace(/^Error: /, "");
+        err(msg);
+        if (!m && msg.includes("no exported function"))
+          err(`hint: a release build exports only @export functions; mark ${func} @export, or build with --export-all`);
         status = 1;
       }
       if (record) {
@@ -435,15 +456,19 @@ export function main(argv: string[]): number {
   }
 }
 
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
-if (isMain) {
-  await initRuntime();
-  let code: number;
+/** Load the runtime and run one command line; returns the exit code. A file that cannot be
+ * read is an error message, not a stack trace. */
+export async function cli(argv: string[]): Promise<number> {
   try {
-    code = main(process.argv.slice(2));
+    if (argv[0] && !["-h", "--help", "-V", "--version", "help"].includes(argv[0])) await initRuntime();
+    return main(argv);
   } catch (e) {
-    if (!(e instanceof Exit)) throw e;
-    code = e.code;
+    if (e instanceof Exit) return e.code;
+    const fe = e as NodeJS.ErrnoException;
+    if (fe.code === "ENOENT" || fe.code === "EISDIR" || fe.code === "EACCES") {
+      err(`wiret: cannot ${fe.syscall === "open" && fe.code !== "EISDIR" ? "open" : "read"} ${fe.path ?? "file"}: ${fe.code}`);
+      return 2;
+    }
+    throw e;
   }
-  process.exitCode = code;
 }
