@@ -20,6 +20,7 @@ import { formatResults, parseArgsFor, runFunction, ValueError } from "../core/ru
 import { init as initRuntime, moduleCapabilities, replay, ReplayMismatch, VM, WiretError } from "../core/vm.js";
 import { sortedBy } from "../core/pyutil.js";
 import pkg from "../../package.json" with { type: "json" };
+import { repl } from "./repl.js";
 
 export const VERSION: string = pkg.version;
 
@@ -27,6 +28,7 @@ export const VERSION: string = pkg.version;
 const COMMANDS: [string, string, string][] = [
   ["run", "[--grant CAP]... [--sandbox] [--deterministic [--record LOG.json]] [--fuel N] FILE [FUNC [ARGS...]]",
     "compile FILE.wiret (or load FILE.wbc) and run FUNC, Main by default"],
+  ["repl", "[--fuel N] [FILE...]", "interactive session: each line runs in a virtual Main (:help inside)"],
   ["build", "FILE [-o OUT.wbc] [--no-source] [--export-all]", "compile and verify to bytecode"],
   ["check", "[--json] FILE", "diagnostics (with E0140/W0202 inside a project)"],
   ["fmt", "[--check] [--assign-ids] [--convert-comments | --drop-comments] FILE", "rewrite in canonical form"],
@@ -461,6 +463,13 @@ export function main(argv: string[]): number {
 export async function cli(argv: string[]): Promise<number> {
   try {
     if (argv[0] && !["-h", "--help", "-V", "--version", "help"].includes(argv[0])) await initRuntime();
+    if (argv[0] === "repl") {
+      current = "repl";
+      const a = parseArgs("repl", argv.slice(1));
+      if (a.flags.has("-h") || a.flags.has("--help")) usage(undefined, "repl");
+      const fuel = opt(a, "--fuel");
+      return await repl(a._, fuel ? parseInt(fuel, 10) : undefined);
+    }
     return main(argv);
   } catch (e) {
     if (e instanceof Exit) return e.code;
