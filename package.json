@@ -1,11 +1,14 @@
 {
-  "name": "wiret",
+  "name": "@lemonator32/wiret",
   "version": "0.12.0",
   "license": "MIT",
   "type": "module",
   "description": "Wiret: compile, run, check and format programs in the Wiret visual scripting language",
   "bin": {
     "wiret": "cli/wiret.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "cli/"
