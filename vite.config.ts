@@ -5,7 +5,13 @@ import { defineConfig } from "vite";
 export default defineConfig({
   base: "./",
   clearScreen: false,
-  server: { port: 5173, strictPort: true },
+  server: {
+    port: 5173,
+    strictPort: true,
+    // Cargo's build folders are not page sources, and on Windows watching them crashes Vite
+    // (EBUSY) when Cargo locks a DLL mid-build, which makes the first `tauri dev` fail.
+    watch: { ignored: ["**/src-tauri/**", "**/runtime/target/**"] },
+  },
   envPrefix: ["VITE_", "TAURI_ENV_"],
   build: {
     target: "es2022",
