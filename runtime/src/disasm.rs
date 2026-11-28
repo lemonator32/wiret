@@ -1,4 +1,4 @@
-//! The disassembler (`wiretc dis`, spec section 5.8): a module's bytecode as text, with the
+//! The disassembler (`wiret dis`, spec section 5.8): a module's bytecode as text, with the
 //! node ids from `wr.debug` as labels. The format is the one the Python prototype wrote.
 use std::collections::{HashMap, HashSet};
 

@@ -25,7 +25,7 @@ Wiret is a graph-first programming language whose source of truth is a text file
 ### 1.3 Pipeline
 
 ```
- graph editor <-> .wiret (text) --wiretc--> .wbc (bytecode) --> libwiret VM <-> host (C API)
+ graph editor <-> .wiret (text) --wiret--> .wbc (bytecode) --> libwiret VM <-> host (C API)
                       |                          |
                       +-- fmt / check / diff     +-- custom sections: names, debug map, embedded source
 ```
@@ -70,7 +70,7 @@ The specification covers a language, a canonical format, an editor contract, a m
 | Tier | Scope | Done when |
 | --- | --- | --- |
 | 0. Core | `func`; primitive types and literals; pure arithmetic, comparison and logic; `Entry`, `Return`, `Branch`, `Sequence`; exec back-edges; the `ForRange` macro as the one loop construct (it exercises `Sequence`, `Exit` and the continuation stack); `@pure`; structured diagnostics for these kinds; `exec`, output blocks and `goto`; canonical formatter, both hashes, a reference interpreter over the lowered blocks | The examples in 2.6 that use only Tier 0 features, in canonical form, round-trip byte for byte, produce the traces in 4.2, and every Tier 0 diagnostic has a failing graph. |
-| 1. Data and tooling | `struct`, `enum`, `array`/`set`/`map` with **eager** copy (observably identical to 4.9), `Convert`, registry, `state`, `@reads`, metadata decorators and notes, the merge and edit protocol, WBC and the verifier, `wiretc view --flow` and the Git textconv | Editor round trips are byte-stable; merge and edit tests pass; verifier fuzz passes. |
+| 1. Data and tooling | `struct`, `enum`, `array`/`set`/`map` with **eager** copy (observably identical to 4.9), `Convert`, registry, `state`, `@reads`, metadata decorators and notes, the merge and edit protocol, WBC and the verifier, `wiret view --flow` and the Git textconv | Editor round trips are byte-stable; merge and edit tests pass; verifier fuzz passes. |
 | 2. Deferred | `class`, interfaces, `delegate`, `dispatcher`; latent nodes, fibers, `Signal`; `Try`/`Throw` (catchable faults); copy-on-write containers (an optimisation of Tier 1's semantics, not a change to them); capabilities; the full C API; debugger hooks; the project manager and lockfile | Started only after Tier 1; each item keeps the **Provisional** mark until it has its own tests. |
 
 Sections 4.6 (faults), 4.5 (latent nodes), 4.9 (copy-on-write), the Tier 2 opcodes of 5, 6 (C API) and 7.3 (projects) are therefore specified ahead of the prototype and may change when their tier starts.

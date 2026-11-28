@@ -359,7 +359,7 @@ export interface Step { phase: string; graph: string; node: string; depth: numbe
 export interface DebugResult extends RunResult {
   steps: Step[]; frame_table: Frame[]; globals_table: [string, string, string][][];
   counts: Record<string, Record<string, number>>; truncated: boolean;
-  /** the disassembly of the compiled debug build (`wiretc dis`), or null if it did not compile */
+  /** the disassembly of the compiled debug build (`wiret dis`), or null if it did not compile */
   bytecode: string | null;
 }
 

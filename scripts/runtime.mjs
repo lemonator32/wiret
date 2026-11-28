@@ -1,5 +1,5 @@
 // Builds the Rust runtime (runtime/) as WebAssembly and puts it next to src/core/runtime.ts,
-// which loads it. Runs before dev, build, test and wiretc, as embed.mjs does. Needs a Rust
+// which loads it. Runs before dev, build, test and wiret, as embed.mjs does. Needs a Rust
 // toolchain with the wasm32-unknown-unknown target (`rustup target add wasm32-unknown-unknown`).
 import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, statSync } from "node:fs";

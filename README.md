@@ -79,14 +79,14 @@ Wiret was designed to address exactly that gap. It keeps the graph model, but ma
 
 ## The app (TypeScript)
 
-The Wiret editor, compiler and `wiretc` toolchain in TypeScript, running programs on the Rust runtime. One codebase
+The Wiret editor, compiler and `wiret` toolchain in TypeScript, running programs on the Rust runtime. One codebase
 serves three targets:
 
 | Target | What runs it | Entry point |
 | --- | --- | --- |
 | Web page | any browser, as a static site (GitHub Pages) | `index.html` → `src/web/main.ts` |
 | Desktop app | Tauri 2 (the system webview: WebView2, WKWebView, WebKitGTK) | the same page, in `src-tauri/` |
-| Command line | Node 22+ | `src/cli/wiretc.ts` |
+| Command line | Node 22+ | `src/cli/wiret.ts` |
 
 It is a port of the Python prototype (removed in d8008eb), and is tested against it: for every lesson and example, the TypeScript gives the same canonical text, hashes,
 diagnostics, bytecode, disassembly, program output, debugger recording, and the same result
@@ -103,7 +103,7 @@ npm install
 npm run dev                  # the editor at http://localhost:5173
 npm test                     # the parity tests
 npm run build                # the static site, in dist/
-npm run wiretc -- run content/examples/demo.wiret Main
+npm run wiret -- run content/examples/demo.wiret Main
 ```
 
 The desktop app also needs, on Linux, the WebKitGTK packages listed in
@@ -126,7 +126,7 @@ src/core/      the language: parser, printer, checker, compiler, verifier, and t
 src/web/       the page: graphview.ts (the canvas), debugger.ts (steps a recorded run),
                syntax.ts (highlighting), main.ts (the page), host.ts (file open/save),
                nativevm.ts (the desktop app's native runtime, over Tauri IPC)
-src/cli/       wiretc on Node: file system, git, the merge driver
+src/cli/       wiret on Node: file system, git, the merge driver
 runtime/       the bytecode runtime in Rust: decoder, verifier, VM, natives, replay
 src-tauri/     the desktop shell: a window, native file dialogs, file access and watching,
                and the runtime as Tauri commands (src/runtime.rs)
@@ -150,7 +150,7 @@ and fuel for every lesson and example. It is what a game engine embeds. It is us
 | Host | How |
 | --- | --- |
 | Rust (the desktop app, an engine in Rust) | `wiret_runtime::Vm` directly; `cargo run --example run -- FILE.wbc Main` in `runtime/` shows a host and a host native |
-| The web page, `wiretc` and the tests | built for `wasm32-unknown-unknown` by `scripts/runtime.mjs` (before dev, build, test and wiretc); `src/core/vm.ts` wraps it |
+| The web page, `wiret` and the tests | built for `wasm32-unknown-unknown` by `scripts/runtime.mjs` (before dev, build, test and wiret); `src/core/vm.ts` wraps it |
 | The desktop page | the Tauri commands in `src-tauri/src/runtime.rs`, which run VMs natively on their own thread; `src/web/nativevm.ts` is the page's async client |
 
 The WebAssembly build and the Tauri commands speak the same JSON protocol, described in
@@ -185,7 +185,7 @@ the Python prototype wrote (`test/golden/*.json`):
 
 After changing the prototype, write the fixtures again with `npm run golden` (needs Python 3.10+).
 
-`wiretc` was also compared with `prototype/wiretc.py` command by command (check, fmt, build,
+`wiret` was also compared with `prototype/wiretc.py` command by command (check, fmt, build,
 dis, verify, run, replay, caps, hash, view, schema, diff, merge, edit).
 
 ### Known differences from the prototype
@@ -197,7 +197,7 @@ dis, verify, run, replay, caps, hash, view, schema, diff, merge, edit).
 - The desktop app is the web editor in a native window, with file open, save and watching
   added. It is not a port of the Tkinter editor (`prototype/wiret/editor.py`), so not
   everything that editor had is in it. Its Bytecode tab is: after a run, the Bytecode tab
-  shows the debug build's disassembly, as `wiretc dis` prints it.
+  shows the debug build's disassembly, as `wiret dis` prints it.
 
 ## Design principles
 

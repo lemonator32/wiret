@@ -197,7 +197,7 @@ pub unsafe extern "C" fn wr_verify(ptr: *const u8, len: usize) -> usize {
     set_result(&reply_json(r))
 }
 
-/// A module's disassembly (`wiretc dis`): `{"ok": text}` or `{"err": message}`.
+/// A module's disassembly (`wiret dis`): `{"ok": text}` or `{"err": message}`.
 ///
 /// # Safety
 /// `ptr` and `len` must describe readable memory.

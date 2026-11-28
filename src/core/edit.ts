@@ -1,4 +1,4 @@
-/** `wiretc edit`: the editing protocol for tools and LLMs (spec section 7.2).
+/** `wiret edit`: the editing protocol for tools and LLMs (spec section 7.2).
  *
  * A request is JSON: `{"if_hash": "<layout hash>", "ops": [ ... ]}`. Each op is an object with
  * an `"op"` field. The whole request is applied to a copy of the model; if any op fails,

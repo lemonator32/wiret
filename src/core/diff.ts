@@ -1,4 +1,4 @@
-/** `wiretc diff a b`: a node-aware semantic diff in flow order (spec section 7).
+/** `wiret diff a b`: a node-aware semantic diff in flow order (spec section 7).
  *
  * Changes to behaviour come first, per declaration and per graph. Metadata and layout-only
  * changes follow in sections of their own, so a reviewer can tell at a glance whether a
@@ -47,7 +47,7 @@ export function flowOrder(g: Graph, info: GraphInfo): string[] {
   return out;
 }
 
-/** `wiretc view --flow`: the canonical text is already in flow order. */
+/** `wiret view --flow`: the canonical text is already in flow order. */
 export function viewFlow(m: Module): string {
   return printModule(m);
 }

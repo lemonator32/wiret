@@ -1,4 +1,4 @@
-﻿/** Macro expansion, lowering and WBC emission (spec sections 4.2, 4.3 and 4.8).
+/** Macro expansion, lowering and WBC emission (spec sections 4.2, 4.3 and 4.8).
  *
  * Every impure node becomes one block labelled with its (path-style) node id. A block
  * evaluates the pure subgraph feeding its inputs at that node's evaluation point, performs
@@ -1744,7 +1744,7 @@ function exported(item: { attrs: Attr[] | null }): boolean {
   return (item.attrs ?? []).some((a) => a.name === "export");
 }
 
-/** Compile and verify. `exportAll` is `wiretc build --export-all` (section 5.2). */
+/** Compile and verify. `exportAll` is `wiret build --export-all` (section 5.2). */
 export function compileModule(module: Module, source: string | null = null, embedSource = true, debug = false,
                               project: Project | null = null, exportAll = false): CompileResult {
   return new Compiler(module, source, embedSource, debug, project, exportAll).compile();

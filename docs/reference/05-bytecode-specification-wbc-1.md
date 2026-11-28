@@ -100,7 +100,7 @@ A `const` is 8 bytes (numeric bit pattern), or a `u32` data index for `string`, 
 | `wr.reflect` | Attribute data for the host: `@doc`, `@category`, parameter names and defaults. |
 | `wr.caps` | Every capability the module's imports require, so a host can inspect or refuse a module before loading it. |
 
-**Sidecar.** `wiretc build --sidecar` writes `wr.debug`, `wr.pins`, `wr.graph` and `wr.reflect` to a separate `out.wdbg` file instead of embedding them. `wr.meta` in both files carries the same module id and semantic hash, so a debugger can match them. Release builds can ship the small `.wbc` alone. A `.wdbg` file uses the container of section 5.2 with the magic `00 57 44 47` (NUL 'W' 'D' 'G'), `version` 1 and `flags` 0, and holds only custom sections.
+**Sidecar.** `wiret build --sidecar` writes `wr.debug`, `wr.pins`, `wr.graph` and `wr.reflect` to a separate `out.wdbg` file instead of embedding them. `wr.meta` in both files carries the same module id and semantic hash, so a debugger can match them. Release builds can ship the small `.wbc` alone. A `.wdbg` file uses the container of section 5.2 with the magic `00 57 44 47` (NUL 'W' 'D' 'G'), `version` 1 and `flags` 0, and holds only custom sections.
 
 #### 5.4.1 Layout of `wr.debug` and `wr.pins`
 
@@ -258,7 +258,7 @@ Each instruction costs 1 unit, a lane instruction included; `call`, `call_virtua
 
 ### 5.8 Disassembly
 
-`wiretc dis` prints the bytecode with node ids recovered from `wr.debug`: a named node's name, else its execution position (section 2.3). The two listings below are the compiled forms of `TakeDamage` and `SumTo` from section 2.6 (at `-O1`; at `-O0` the loop keeps its `cont.push` / `cont.pop` pair).
+`wiret dis` prints the bytecode with node ids recovered from `wr.debug`: a named node's name, else its execution position (section 2.3). The two listings below are the compiled forms of `TakeDamage` and `SumTo` from section 2.6 (at `-O1`; at `-O0` the loop keeps its `cont.push` / `cont.pop` pair).
 
 ```
 func game.demo.Player.TakeDamage (ref Player, i32) -> (i32)

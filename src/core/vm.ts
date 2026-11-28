@@ -1,7 +1,7 @@
-﻿/** The VM the editor and `wiretc` run programs on: the Rust runtime (runtime/, `libwiret`)
+/** The VM the editor and `wiret` run programs on: the Rust runtime (runtime/, `libwiret`)
  * compiled to WebAssembly, behind the API the TypeScript VM used to have.
  *
- * Call `await init()` once before making a VM (the page's boot, `wiretc` and the tests do).
+ * Call `await init()` once before making a VM (the page's boot, `wiret` and the tests do).
  * Values cross as the runtime's JSON (runtime/src/bridge.rs) and come back as the editor
  * expects them: i32 and floats as numbers, i64 as bigints, strings, arrays (also for structs
  * and lane values), maps and sets as `Map`s (a set's values are null), and `Obj`, `Delegate`,

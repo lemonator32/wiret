@@ -4,7 +4,7 @@ __pycache__
 node_modules/
 dist/
 scratch/
-# made from content/ by scripts/embed.mjs before dev, build, test and wiretc
+# made from content/ by scripts/embed.mjs before dev, build, test and wiret
 src/core/content.gen.ts
 # built from runtime/ by scripts/runtime.mjs
 src/core/wiret_runtime.wasm

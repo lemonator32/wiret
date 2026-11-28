@@ -1,4 +1,4 @@
-/** `wiretc merge base ours theirs`: the keyed three-way merge of section 7.1.
+/** `wiret merge base ours theirs`: the keyed three-way merge of section 7.1.
  *
  * Every element is matched by key across the three versions and merged per field: a field
  * changed on one side takes that change, the same change on both sides is no change, and

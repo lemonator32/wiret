@@ -1,23 +1,23 @@
 #!/usr/bin/env node
-/** wiretc: the Wiret command-line toolchain (spec section 7), on Node.
+/** wiret: the Wiret command-line toolchain (spec section 7), on Node.
  *
- *   wiretc check [--json] FILE           diagnostics (with E0140/W0202 inside a project)
- *   wiretc fmt [--check] [--assign-ids] [--convert-comments | --drop-comments] FILE
- *   wiretc build FILE [-o OUT.wbc] [--no-source] [--export-all]
- *   wiretc dis FILE.wbc                  disassemble with node ids
- *   wiretc verify FILE.wbc               run only the verifier
- *   wiretc run [--grant CAP]... [--sandbox] [--deterministic [--record LOG.json]] [--fuel N]
+ *   wiret check [--json] FILE           diagnostics (with E0140/W0202 inside a project)
+ *   wiret fmt [--check] [--assign-ids] [--convert-comments | --drop-comments] FILE
+ *   wiret build FILE [-o OUT.wbc] [--no-source] [--export-all]
+ *   wiret dis FILE.wbc                  disassemble with node ids
+ *   wiret verify FILE.wbc               run only the verifier
+ *   wiret run [--grant CAP]... [--sandbox] [--deterministic [--record LOG.json]] [--fuel N]
  *              FILE.wiret|FILE.wbc FUNC [ARGS...]
- *   wiretc replay FILE.wiret|FILE.wbc LOG.json
- *   wiretc caps FILE.wiret|FILE.wbc      the capabilities a module needs (wr.caps)
- *   wiretc hash FILE                     semantic and layout hashes
- *   wiretc view --flow FILE              reading view in flow order
- *   wiretc schema --json                 the node registry
- *   wiretc diff [--raw] A B              node-aware semantic diff in flow order
- *   wiretc merge BASE OURS THEIRS [-o OUT]
- *   wiretc init-git                      set up the merge driver, textconv and wiret.ids union
- *   wiretc edit FILE REQUEST.json|- [--dry-run]
- *   wiretc ids --check BASE[..HEAD] [--record] [--project DIR]
+ *   wiret replay FILE.wiret|FILE.wbc LOG.json
+ *   wiret caps FILE.wiret|FILE.wbc      the capabilities a module needs (wr.caps)
+ *   wiret hash FILE                     semantic and layout hashes
+ *   wiret view --flow FILE              reading view in flow order
+ *   wiret schema --json                 the node registry
+ *   wiret diff [--raw] A B              node-aware semantic diff in flow order
+ *   wiret merge BASE OURS THEIRS [-o OUT]
+ *   wiret init-git                      set up the merge driver, textconv and wiret.ids union
+ *   wiret edit FILE REQUEST.json|- [--dry-run]
+ *   wiret ids --check BASE[..HEAD] [--record] [--project DIR]
  */
 import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -102,7 +102,7 @@ function initGit(): number {
   }
   const me = `"${process.execPath}" "${fileURLToPath(import.meta.url)}"`.replace(/\\/g, "/");
   const runner = me.endsWith('.ts"') ? `npx tsx ${me.split(" ").slice(1).join(" ")}` : me;
-  for (const [k, v] of [["merge.wiret.name", "Wiret keyed merge (wiretc merge)"], ["merge.wiret.driver", `${runner} merge %O %A %B`],
+  for (const [k, v] of [["merge.wiret.name", "Wiret keyed merge (wiret merge)"], ["merge.wiret.driver", `${runner} merge %O %A %B`],
                         ["diff.wiret.textconv", `${runner} view --flow`]])
     git(["config", k, v], top);
   const p = path.join(top, ".gitattributes");
@@ -133,7 +133,7 @@ function textMerge(base: string, ours: string, theirs: string): MergeResult {
   }
 }
 
-/** `wiretc ids --check`: every deleted id was retired in wiret.ids, none reused. */
+/** `wiret ids --check`: every deleted id was retired in wiret.ids, none reused. */
 function checkRange(project: Project, spec: string, record: boolean): number {
   const [base, headRaw] = spec.includes("..") ? spec.split("..") : [spec, ""];
   const head = headRaw || null;
@@ -222,8 +222,8 @@ function parseArgs(cmd: string, argv: string[]): Args {
 }
 
 function usage(msg?: string): never {
-  const doc = readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").filter((l) => l.startsWith(" *   wiretc")).map((l) => l.slice(3));
-  if (msg) err(`wiretc: ${msg}`);
+  const doc = readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").filter((l) => l.startsWith(" *   wiret")).map((l) => l.slice(3));
+  if (msg) err(`wiret: ${msg}`);
   (msg ? err : (s: string) => out(s + "\n"))("usage:\n" + doc.join("\n"));
   throw new Exit(msg ? 2 : 0);
 }
@@ -294,7 +294,7 @@ export function main(argv: string[]): number {
         r = textMerge(...texts);
       }
       writeFileSync(opt(a, "-o", "--output") || ours, r.text, "utf8");
-      if (r.fallback) err("wiretc merge: a side does not parse; used a plain line merge");
+      if (r.fallback) err("wiret merge: a side does not parse; used a plain line merge");
       for (const n of r.notices) err(`notice: layout ${n}`);
       for (const c of r.conflicts) err(`conflict: ${c.where}: ${c.what}`);
       for (const d of r.semantic) err(`semantic conflict: ${d}`);

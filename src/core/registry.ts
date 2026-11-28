@@ -1,4 +1,4 @@
-﻿/** The node registry (spec section 3.5): pin names, types, defaults and purity.
+/** The node registry (spec section 3.5): pin names, types, defaults and purity.
  *
  * Static kinds are described as data. Kinds whose pins depend on context (Entry, Return,
  * Call, Macro, Exit, the variable accessors) are expanded by `signature`. */
@@ -1341,7 +1341,7 @@ function _arraySig(node: Node, graph: Graph, idx: ModuleIndex, sig: Sig): Sig {
   return sig;
 }
 
-/** The registry document printed by `wiretc schema --json`. */
+/** The registry document printed by `wiret schema --json`. */
 export function registryJson(): Record<string, unknown> {
   const kinds: any[] = [];
   for (const k of sortedBy(Object.keys(STATIC_KINDS))) {

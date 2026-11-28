@@ -16,8 +16,8 @@
     "pretest": "npm run content",
     "test": "vitest run",
     "golden": "python scripts/golden.py print check run disasm web edits",
-    "prewiretc": "npm run content",
-    "wiretc": "tsx src/cli/wiretc.ts",
+    "prewiret": "npm run content",
+    "wiret": "tsx src/cli/wiret.ts",
     "tauri": "tauri"
   },
   "dependencies": {
