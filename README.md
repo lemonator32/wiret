@@ -44,6 +44,52 @@ func Main() {
 
 [Try out the graph editor in the browser!](https://lemonator32.github.io/wiret/)
 
+## Command line
+
+The `wiret` command line tool is on npm as [`wiret-lang`](https://www.npmjs.com/package/wiret-lang). It needs
+Node 20 or newer; the runtime ships inside the package as WebAssembly, so there is nothing else to install.
+
+```sh
+npm install -g wiret-lang
+```
+
+```sh
+wiret new my-game                    # a project: wiret.toml, src/my_game/main.wiret, Git setup
+cd my-game
+wiret run src/my_game/main.wiret     # compile and run Main (or name another function)
+wiret check src/my_game/main.wiret   # the linter: diagnostics, --json for tools
+wiret build src/my_game/main.wiret -o main.wbc
+wiret run main.wbc                   # run compiled bytecode
+wiret repl                           # an interactive session in a virtual Main
+wiret explain E0310                  # what a diagnostic code means
+```
+
+| Command | What it does |
+| --- | --- |
+| `run FILE [FUNC [ARGS...]]` | compile a `.wiret` file (or load a `.wbc`) and run `FUNC`, `Main` by default |
+| `build FILE [-o OUT.wbc]` | compile and verify to bytecode; `--export-all` exports every function |
+| `check FILE` | diagnostics, with project checks inside a `wiret.toml` project |
+| `fmt FILE` | rewrite in canonical form; `--check` fails instead, for CI |
+| `repl [FILE...]` | each line runs in a virtual `Main`; `:help` inside lists its commands |
+| `new DIR`, `init [DIR]` | create a project, or make an existing directory one |
+| `explain [CODE]` | what a diagnostic code or runtime status means |
+| `dis`, `verify` | disassemble or verify a `.wbc` file |
+| `diff`, `merge`, `init-git` | semantic diff and the keyed three-way Git merge driver |
+| `edit`, `ids`, `hash`, `view`, `caps`, `schema`, `replay` | the editing protocol, id registry checks and other tooling |
+
+`wiret --help` lists every command, and `wiret help COMMAND` shows a command's options.
+
+In the REPL, an expression prints its value, a node with an exec input runs as a statement, and
+`x = value` declares or sets a local:
+
+```
+wiret> x = 6
+wiret> Mul#<i32>(.a <- x, .b <- 7)
+42
+wiret> Call host.Log(.message <- "hi")
+hi
+```
+
 ## Why Wiret?
 
 Most visual scripting systems are excellent for authoring, but awkward for:
@@ -86,7 +132,7 @@ serves three targets:
 | --- | --- | --- |
 | Web page | any browser, as a static site (GitHub Pages) | `index.html` → `src/web/main.ts` |
 | Desktop app | Tauri 2 (the system webview: WebView2, WKWebView, WebKitGTK) | the same page, in `src-tauri/` |
-| Command line | Node 22+ | `src/cli/wiret.ts` |
+| Command line | Node 20+ | `src/cli/bin.ts`, bundled into `cli/wiret.js` for npm |
 
 It is a port of the Python prototype (removed in d8008eb), and is tested against it: for every lesson and example, the TypeScript gives the same canonical text, hashes,
 diagnostics, bytecode, disassembly, program output, debugger recording, and the same result
@@ -104,6 +150,7 @@ npm run dev                  # the editor at http://localhost:5173
 npm test                     # the parity tests
 npm run build                # the static site, in dist/
 npm run wiret -- run content/examples/demo.wiret Main
+npm run cli                  # bundle the command line into cli/ (npm publish does this too)
 ```
 
 The desktop app also needs, on Linux, the WebKitGTK packages listed in
@@ -126,7 +173,8 @@ src/core/      the language: parser, printer, checker, compiler, verifier, and t
 src/web/       the page: graphview.ts (the canvas), debugger.ts (steps a recorded run),
                syntax.ts (highlighting), main.ts (the page), host.ts (file open/save),
                nativevm.ts (the desktop app's native runtime, over Tauri IPC)
-src/cli/       wiret on Node: file system, git, the merge driver
+src/cli/       wiret on Node: the commands (wiret.ts), the REPL (repl.ts), new/init/explain
+               (project.ts), file system, git, the merge driver
 runtime/       the bytecode runtime in Rust: decoder, verifier, VM, natives, replay
 src-tauri/     the desktop shell: a window, native file dialogs, file access and watching,
                and the runtime as Tauri commands (src/runtime.rs)
