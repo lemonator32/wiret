@@ -1,0 +1,3688 @@
+{
+ "examples/demo.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Clamp01": {
+     "1": {
+      "line": 63,
+      "what": "Return"
+     },
+     "1.result": {
+      "line": 63,
+      "what": "Min"
+     },
+     "1.result.a": {
+      "line": 64,
+      "what": "Max"
+     }
+    },
+    "Divide": {
+     "1": {
+      "line": 71,
+      "what": "Return"
+     },
+     "1.result": {
+      "line": 71,
+      "what": "Div"
+     }
+    },
+    "DoOnce": {
+     "0": {
+      "line": 13,
+      "what": "Entry"
+     },
+     "0.in.0": {
+      "line": 14,
+      "what": "Branch"
+     },
+     "0.in.0.cond": {
+      "line": 15,
+      "what": "GetState fired"
+     },
+     "0.in.0.else.0": {
+      "line": 17,
+      "what": "SetState fired"
+     },
+     "0.in.0.else.1": {
+      "line": 20,
+      "what": "Exit out"
+     },
+     "0.reset.0": {
+      "line": 23,
+      "what": "SetState fired"
+     }
+    },
+    "Fib": {
+     "0": {
+      "line": 78,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 79,
+      "what": "Branch"
+     },
+     "1.cond": {
+      "line": 80,
+      "what": "Lt"
+     },
+     "1.else.0": {
+      "line": 89,
+      "what": "Return"
+     },
+     "1.else.0.result": {
+      "line": 90,
+      "what": "Add"
+     },
+     "1.else.0.result.a": {
+      "line": 91,
+      "what": "Call Fib"
+     },
+     "1.else.0.result.a.n": {
+      "line": 92,
+      "what": "Sub"
+     },
+     "1.else.0.result.b": {
+      "line": 97,
+      "what": "Call Fib"
+     },
+     "1.else.0.result.b.n": {
+      "line": 98,
+      "what": "Sub"
+     },
+     "1.then.0": {
+      "line": 85,
+      "what": "Return"
+     }
+    },
+    "ForRange": {
+     "0": {
+      "line": 40,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 41,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 32,
+      "what": "GetLocal i"
+     },
+     "test": {
+      "line": 33,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 34,
+      "what": "Le"
+     },
+     "test.else.0": {
+      "line": 58,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 45,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 46,
+      "what": "Exit each"
+     },
+     "test.then.1": {
+      "line": 50,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 51,
+      "what": "Add"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 117,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 118,
+      "what": "SetVar runs"
+     },
+     "1.value": {
+      "line": 119,
+      "what": "Add"
+     },
+     "1.value.a": {
+      "line": 120,
+      "what": "GetVar runs"
+     },
+     "2": {
+      "line": 124,
+      "what": "Call host.Log"
+     },
+     "3": {
+      "line": 127,
+      "what": "Macro ForRange"
+     },
+     "3.done.1": {
+      "line": 162,
+      "what": "Call host.Log"
+     },
+     "3.done.1.message": {
+      "line": 163,
+      "what": "Call std.string.Concat"
+     },
+     "3.done.1.message.b": {
+      "line": 165,
+      "what": "Convert"
+     },
+     "3.done.2": {
+      "line": 170,
+      "what": "Return"
+     },
+     "3.each.0": {
+      "line": 131,
+      "what": "Branch"
+     },
+     "3.each.0.cond": {
+      "line": 132,
+      "what": "Eq"
+     },
+     "3.each.0.cond.a": {
+      "line": 133,
+      "what": "Rem"
+     },
+     "3.each.0.then.0": {
+      "line": 140,
+      "what": "Call host.Log"
+     },
+     "3.each.0.then.0.message": {
+      "line": 141,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.then.0.message.a": {
+      "line": 142,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.then.0.message.a.a": {
+      "line": 143,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.then.0.message.a.a.b": {
+      "line": 145,
+      "what": "Convert"
+     },
+     "3.each.0.then.0.message.b": {
+      "line": 152,
+      "what": "Convert"
+     },
+     "3.each.0.then.0.message.b.value": {
+      "line": 153,
+      "what": "Call Fib"
+     },
+     "sum": {
+      "line": 113,
+      "what": "Call SumTo"
+     }
+    },
+    "SumTo": {
+     "0": {
+      "line": 177,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 178,
+      "what": "Macro ForRange"
+     },
+     "1.done.0": {
+      "line": 189,
+      "what": "Return"
+     },
+     "1.done.0.total": {
+      "line": 190,
+      "what": "GetLocal acc"
+     },
+     "1.each.0": {
+      "line": 182,
+      "what": "SetLocal acc"
+     },
+     "1.each.0.value": {
+      "line": 183,
+      "what": "Add"
+     },
+     "1.each.0.value.a": {
+      "line": 184,
+      "what": "GetLocal acc"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Hello from Wiret!",
+    "Fib(2) = 1",
+    "Fib(4) = 3",
+    "Fib(6) = 8",
+    "Fib(8) = 21",
+    "Fib(10) = 55",
+    "SumTo(100) = 5050"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Clamp01": {
+     "1": {
+      "line": 63,
+      "what": "Return"
+     },
+     "1.result": {
+      "line": 63,
+      "what": "Min"
+     },
+     "1.result.a": {
+      "line": 64,
+      "what": "Max"
+     }
+    },
+    "Divide": {
+     "1": {
+      "line": 71,
+      "what": "Return"
+     },
+     "1.result": {
+      "line": 71,
+      "what": "Div"
+     }
+    },
+    "DoOnce": {
+     "0": {
+      "line": 13,
+      "what": "Entry"
+     },
+     "0.in.0": {
+      "line": 14,
+      "what": "Branch"
+     },
+     "0.in.0.cond": {
+      "line": 15,
+      "what": "GetState fired"
+     },
+     "0.in.0.else.0": {
+      "line": 17,
+      "what": "SetState fired"
+     },
+     "0.in.0.else.1": {
+      "line": 20,
+      "what": "Exit out"
+     },
+     "0.reset.0": {
+      "line": 23,
+      "what": "SetState fired"
+     }
+    },
+    "Fib": {
+     "0": {
+      "line": 78,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 79,
+      "what": "Branch"
+     },
+     "1.cond": {
+      "line": 80,
+      "what": "Lt"
+     },
+     "1.else.0": {
+      "line": 89,
+      "what": "Return"
+     },
+     "1.else.0.result": {
+      "line": 90,
+      "what": "Add"
+     },
+     "1.else.0.result.a": {
+      "line": 91,
+      "what": "Call Fib"
+     },
+     "1.else.0.result.a.n": {
+      "line": 92,
+      "what": "Sub"
+     },
+     "1.else.0.result.b": {
+      "line": 97,
+      "what": "Call Fib"
+     },
+     "1.else.0.result.b.n": {
+      "line": 98,
+      "what": "Sub"
+     },
+     "1.then.0": {
+      "line": 85,
+      "what": "Return"
+     }
+    },
+    "ForRange": {
+     "0": {
+      "line": 40,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 41,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 32,
+      "what": "GetLocal i"
+     },
+     "test": {
+      "line": 33,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 34,
+      "what": "Le"
+     },
+     "test.else.0": {
+      "line": 58,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 45,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 46,
+      "what": "Exit each"
+     },
+     "test.then.1": {
+      "line": 50,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 51,
+      "what": "Add"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 117,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 118,
+      "what": "SetVar runs"
+     },
+     "1.value": {
+      "line": 119,
+      "what": "Add"
+     },
+     "1.value.a": {
+      "line": 120,
+      "what": "GetVar runs"
+     },
+     "2": {
+      "line": 124,
+      "what": "Call host.Log"
+     },
+     "3": {
+      "line": 127,
+      "what": "Macro ForRange"
+     },
+     "3.done.1": {
+      "line": 162,
+      "what": "Call host.Log"
+     },
+     "3.done.1.message": {
+      "line": 163,
+      "what": "Call std.string.Concat"
+     },
+     "3.done.1.message.b": {
+      "line": 165,
+      "what": "Convert"
+     },
+     "3.done.2": {
+      "line": 170,
+      "what": "Return"
+     },
+     "3.each.0": {
+      "line": 131,
+      "what": "Branch"
+     },
+     "3.each.0.cond": {
+      "line": 132,
+      "what": "Eq"
+     },
+     "3.each.0.cond.a": {
+      "line": 133,
+      "what": "Rem"
+     },
+     "3.each.0.then.0": {
+      "line": 140,
+      "what": "Call host.Log"
+     },
+     "3.each.0.then.0.message": {
+      "line": 141,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.then.0.message.a": {
+      "line": 142,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.then.0.message.a.a": {
+      "line": 143,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.then.0.message.a.a.b": {
+      "line": 145,
+      "what": "Convert"
+     },
+     "3.each.0.then.0.message.b": {
+      "line": 152,
+      "what": "Convert"
+     },
+     "3.each.0.then.0.message.b.value": {
+      "line": 153,
+      "what": "Call Fib"
+     },
+     "sum": {
+      "line": 113,
+      "what": "Call SumTo"
+     }
+    },
+    "SumTo": {
+     "0": {
+      "line": 177,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 178,
+      "what": "Macro ForRange"
+     },
+     "1.done.0": {
+      "line": 189,
+      "what": "Return"
+     },
+     "1.done.0.total": {
+      "line": 190,
+      "what": "GetLocal acc"
+     },
+     "1.each.0": {
+      "line": 182,
+      "what": "SetLocal acc"
+     },
+     "1.each.0.value": {
+      "line": 183,
+      "what": "Add"
+     },
+     "1.each.0.value.a": {
+      "line": 184,
+      "what": "GetLocal acc"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Hello from Wiret!",
+    "Fib(2) = 1",
+    "Fib(4) = 3",
+    "Fib(6) = 8",
+    "Fib(8) = 21",
+    "Fib(10) = 55",
+    "SumTo(100) = 5050"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/01_hello.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 10,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 11,
+      "what": "Call host.Log"
+     },
+     "2": {
+      "line": 14,
+      "what": "Call host.Log"
+     },
+     "3": {
+      "line": 17,
+      "what": "Call host.Log"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Hello!",
+    "Programs run one step at a time.",
+    "The white arrows decide the order."
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 10,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 11,
+      "what": "Call host.Log"
+     },
+     "2": {
+      "line": 14,
+      "what": "Call host.Log"
+     },
+     "3": {
+      "line": 17,
+      "what": "Call host.Log"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Hello!",
+    "Programs run one step at a time.",
+    "The white arrows decide the order."
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/02_variables.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 11,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 12,
+      "what": "SetLocal score"
+     },
+     "2": {
+      "line": 15,
+      "what": "SetLocal score"
+     },
+     "2.value": {
+      "line": 17,
+      "what": "Add"
+     },
+     "2.value.a": {
+      "line": 18,
+      "what": "GetLocal score"
+     },
+     "3": {
+      "line": 22,
+      "what": "Call host.Log"
+     },
+     "3.message": {
+      "line": 23,
+      "what": "Call std.string.Concat"
+     },
+     "3.message.b": {
+      "line": 26,
+      "what": "Convert"
+     },
+     "3.message.b.value": {
+      "line": 27,
+      "what": "GetLocal score"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Your score is 15"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 11,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 12,
+      "what": "SetLocal score"
+     },
+     "2": {
+      "line": 15,
+      "what": "SetLocal score"
+     },
+     "2.value": {
+      "line": 17,
+      "what": "Add"
+     },
+     "2.value.a": {
+      "line": 18,
+      "what": "GetLocal score"
+     },
+     "3": {
+      "line": 22,
+      "what": "Call host.Log"
+     },
+     "3.message": {
+      "line": 23,
+      "what": "Call std.string.Concat"
+     },
+     "3.message.b": {
+      "line": 26,
+      "what": "Convert"
+     },
+     "3.message.b.value": {
+      "line": 27,
+      "what": "GetLocal score"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Your score is 15"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/03_decisions.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "CheckAge": {
+     "0": {
+      "line": 14,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 15,
+      "what": "Branch"
+     },
+     "1.cond": {
+      "line": 16,
+      "what": "Ge"
+     },
+     "1.else.0": {
+      "line": 28,
+      "what": "Call host.Log"
+     },
+     "1.else.0.message": {
+      "line": 29,
+      "what": "Call std.string.Concat"
+     },
+     "1.then.0": {
+      "line": 21,
+      "what": "Call host.Log"
+     },
+     "1.then.0.message": {
+      "line": 22,
+      "what": "Call std.string.Concat"
+     },
+     "age_text": {
+      "line": 10,
+      "what": "Convert"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 40,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 41,
+      "what": "Call CheckAge"
+     },
+     "2": {
+      "line": 44,
+      "what": "Call CheckAge"
+     },
+     "3": {
+      "line": 47,
+      "what": "Call CheckAge"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "12 is a child.",
+    "30 is an adult.",
+    "18 is an adult."
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "CheckAge": {
+     "0": {
+      "line": 14,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 15,
+      "what": "Branch"
+     },
+     "1.cond": {
+      "line": 16,
+      "what": "Ge"
+     },
+     "1.else.0": {
+      "line": 28,
+      "what": "Call host.Log"
+     },
+     "1.else.0.message": {
+      "line": 29,
+      "what": "Call std.string.Concat"
+     },
+     "1.then.0": {
+      "line": 21,
+      "what": "Call host.Log"
+     },
+     "1.then.0.message": {
+      "line": 22,
+      "what": "Call std.string.Concat"
+     },
+     "age_text": {
+      "line": 10,
+      "what": "Convert"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 40,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 41,
+      "what": "Call CheckAge"
+     },
+     "2": {
+      "line": 44,
+      "what": "Call CheckAge"
+     },
+     "3": {
+      "line": 47,
+      "what": "Call CheckAge"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "12 is a child.",
+    "30 is an adult.",
+    "18 is an adult."
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/04_loops.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 11,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 12,
+      "what": "Macro std.flow.ForRange"
+     },
+     "1.done.0": {
+      "line": 32,
+      "what": "Call host.Log"
+     },
+     "1.done.0.message": {
+      "line": 33,
+      "what": "Call std.string.Concat"
+     },
+     "1.done.0.message.b": {
+      "line": 35,
+      "what": "Convert"
+     },
+     "1.done.0.message.b.value": {
+      "line": 36,
+      "what": "GetLocal total"
+     },
+     "1.each.0": {
+      "line": 16,
+      "what": "Call host.Log"
+     },
+     "1.each.0.message": {
+      "line": 17,
+      "what": "Call std.string.Concat"
+     },
+     "1.each.0.message.b": {
+      "line": 19,
+      "what": "Convert"
+     },
+     "1.each.1": {
+      "line": 25,
+      "what": "SetLocal total"
+     },
+     "1.each.1.value": {
+      "line": 26,
+      "what": "Add"
+     },
+     "1.each.1.value.a": {
+      "line": 27,
+      "what": "GetLocal total"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Counting: 1",
+    "Counting: 2",
+    "Counting: 3",
+    "Counting: 4",
+    "Counting: 5",
+    "Total: 15"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 11,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 12,
+      "what": "Macro std.flow.ForRange"
+     },
+     "1.done.0": {
+      "line": 32,
+      "what": "Call host.Log"
+     },
+     "1.done.0.message": {
+      "line": 33,
+      "what": "Call std.string.Concat"
+     },
+     "1.done.0.message.b": {
+      "line": 35,
+      "what": "Convert"
+     },
+     "1.done.0.message.b.value": {
+      "line": 36,
+      "what": "GetLocal total"
+     },
+     "1.each.0": {
+      "line": 16,
+      "what": "Call host.Log"
+     },
+     "1.each.0.message": {
+      "line": 17,
+      "what": "Call std.string.Concat"
+     },
+     "1.each.0.message.b": {
+      "line": 19,
+      "what": "Convert"
+     },
+     "1.each.1": {
+      "line": 25,
+      "what": "SetLocal total"
+     },
+     "1.each.1.value": {
+      "line": 26,
+      "what": "Add"
+     },
+     "1.each.1.value.a": {
+      "line": 27,
+      "what": "GetLocal total"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Counting: 1",
+    "Counting: 2",
+    "Counting: 3",
+    "Counting: 4",
+    "Counting: 5",
+    "Total: 15"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/05_functions.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 9,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 10,
+      "what": "Macro std.flow.ForRange"
+     },
+     "1.each.0": {
+      "line": 14,
+      "what": "Call host.Log"
+     },
+     "1.each.0.message": {
+      "line": 15,
+      "what": "Call std.string.Concat"
+     },
+     "1.each.0.message.a": {
+      "line": 16,
+      "what": "Call std.string.Concat"
+     },
+     "1.each.0.message.a.a": {
+      "line": 17,
+      "what": "Convert"
+     },
+     "1.each.0.message.b": {
+      "line": 22,
+      "what": "Convert"
+     },
+     "1.each.0.message.b.value": {
+      "line": 23,
+      "what": "Call Square"
+     }
+    },
+    "Square": {
+     "0": {
+      "line": 36,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 37,
+      "what": "Return"
+     },
+     "1.result": {
+      "line": 38,
+      "what": "Mul"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "1 squared is 1",
+    "2 squared is 4",
+    "3 squared is 9",
+    "4 squared is 16",
+    "5 squared is 25"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 9,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 10,
+      "what": "Macro std.flow.ForRange"
+     },
+     "1.each.0": {
+      "line": 14,
+      "what": "Call host.Log"
+     },
+     "1.each.0.message": {
+      "line": 15,
+      "what": "Call std.string.Concat"
+     },
+     "1.each.0.message.a": {
+      "line": 16,
+      "what": "Call std.string.Concat"
+     },
+     "1.each.0.message.a.a": {
+      "line": 17,
+      "what": "Convert"
+     },
+     "1.each.0.message.b": {
+      "line": 22,
+      "what": "Convert"
+     },
+     "1.each.0.message.b.value": {
+      "line": 23,
+      "what": "Call Square"
+     }
+    },
+    "Square": {
+     "0": {
+      "line": 36,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 37,
+      "what": "Return"
+     },
+     "1.result": {
+      "line": 38,
+      "what": "Mul"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "1 squared is 1",
+    "2 squared is 4",
+    "3 squared is 9",
+    "4 squared is 16",
+    "5 squared is 25"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/06_fizzbuzz.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 9,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 10,
+      "what": "Macro std.flow.ForRange"
+     },
+     "1.each.0": {
+      "line": 16,
+      "what": "Branch"
+     },
+     "1.each.0.cond": {
+      "line": 17,
+      "what": "Eq"
+     },
+     "1.each.0.cond.a": {
+      "line": 18,
+      "what": "Rem"
+     },
+     "1.each.0.then.0": {
+      "line": 25,
+      "what": "Call host.Log"
+     },
+     "1.each.1": {
+      "line": 30,
+      "what": "Branch"
+     },
+     "1.each.1.cond": {
+      "line": 31,
+      "what": "Eq"
+     },
+     "1.each.1.cond.a": {
+      "line": 32,
+      "what": "Rem"
+     },
+     "1.each.1.then.0": {
+      "line": 39,
+      "what": "Call host.Log"
+     },
+     "1.each.2": {
+      "line": 44,
+      "what": "Branch"
+     },
+     "1.each.2.cond": {
+      "line": 45,
+      "what": "Eq"
+     },
+     "1.each.2.cond.a": {
+      "line": 46,
+      "what": "Rem"
+     },
+     "1.each.2.then.0": {
+      "line": 53,
+      "what": "Call host.Log"
+     },
+     "1.each.3": {
+      "line": 57,
+      "what": "Call host.Log"
+     },
+     "1.each.3.message": {
+      "line": 58,
+      "what": "Convert"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "1",
+    "2",
+    "Fizz",
+    "4",
+    "Buzz",
+    "Fizz",
+    "7",
+    "8",
+    "Fizz",
+    "Buzz",
+    "11",
+    "Fizz",
+    "13",
+    "14",
+    "FizzBuzz"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 9,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 10,
+      "what": "Macro std.flow.ForRange"
+     },
+     "1.each.0": {
+      "line": 16,
+      "what": "Branch"
+     },
+     "1.each.0.cond": {
+      "line": 17,
+      "what": "Eq"
+     },
+     "1.each.0.cond.a": {
+      "line": 18,
+      "what": "Rem"
+     },
+     "1.each.0.then.0": {
+      "line": 25,
+      "what": "Call host.Log"
+     },
+     "1.each.1": {
+      "line": 30,
+      "what": "Branch"
+     },
+     "1.each.1.cond": {
+      "line": 31,
+      "what": "Eq"
+     },
+     "1.each.1.cond.a": {
+      "line": 32,
+      "what": "Rem"
+     },
+     "1.each.1.then.0": {
+      "line": 39,
+      "what": "Call host.Log"
+     },
+     "1.each.2": {
+      "line": 44,
+      "what": "Branch"
+     },
+     "1.each.2.cond": {
+      "line": 45,
+      "what": "Eq"
+     },
+     "1.each.2.cond.a": {
+      "line": 46,
+      "what": "Rem"
+     },
+     "1.each.2.then.0": {
+      "line": 53,
+      "what": "Call host.Log"
+     },
+     "1.each.3": {
+      "line": 57,
+      "what": "Call host.Log"
+     },
+     "1.each.3.message": {
+      "line": 58,
+      "what": "Convert"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "1",
+    "2",
+    "Fizz",
+    "4",
+    "Buzz",
+    "Fizz",
+    "7",
+    "8",
+    "Fizz",
+    "Buzz",
+    "11",
+    "Fizz",
+    "13",
+    "14",
+    "FizzBuzz"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/07_arrays.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 14,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 15,
+      "what": "SetLocal scores"
+     },
+     "1.value": {
+      "line": 16,
+      "what": "MakeArray"
+     },
+     "2": {
+      "line": 23,
+      "what": "ArrayAdd scores"
+     },
+     "3": {
+      "line": 27,
+      "what": "Macro std.flow.ForEach"
+     },
+     "3.done.0": {
+      "line": 53,
+      "what": "Call host.Log"
+     },
+     "3.done.0.message": {
+      "line": 54,
+      "what": "Call std.string.Concat"
+     },
+     "3.done.0.message.a": {
+      "line": 55,
+      "what": "Call std.string.Concat"
+     },
+     "3.done.0.message.a.a": {
+      "line": 56,
+      "what": "Convert"
+     },
+     "3.done.0.message.a.a.value": {
+      "line": 57,
+      "what": "ArrayLength"
+     },
+     "3.done.0.message.b": {
+      "line": 63,
+      "what": "Convert"
+     },
+     "3.done.0.message.b.value": {
+      "line": 64,
+      "what": "GetLocal total"
+     },
+     "3.each.0": {
+      "line": 30,
+      "what": "Call host.Log"
+     },
+     "3.each.0.message": {
+      "line": 31,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.message.a": {
+      "line": 32,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.message.a.a": {
+      "line": 33,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.message.a.a.b": {
+      "line": 35,
+      "what": "Convert"
+     },
+     "3.each.0.message.b": {
+      "line": 41,
+      "what": "Convert"
+     },
+     "3.each.1": {
+      "line": 46,
+      "what": "SetLocal total"
+     },
+     "3.each.1.value": {
+      "line": 47,
+      "what": "Add"
+     },
+     "3.each.1.value.a": {
+      "line": 48,
+      "what": "GetLocal total"
+     },
+     "list": {
+      "line": 12,
+      "what": "GetLocal scores"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Item 0 is 12",
+    "Item 1 is 30",
+    "Item 2 is 7",
+    "Item 3 is 25",
+    "4 scores, total 74"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 14,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 15,
+      "what": "SetLocal scores"
+     },
+     "1.value": {
+      "line": 16,
+      "what": "MakeArray"
+     },
+     "2": {
+      "line": 23,
+      "what": "ArrayAdd scores"
+     },
+     "3": {
+      "line": 27,
+      "what": "Macro std.flow.ForEach"
+     },
+     "3.done.0": {
+      "line": 53,
+      "what": "Call host.Log"
+     },
+     "3.done.0.message": {
+      "line": 54,
+      "what": "Call std.string.Concat"
+     },
+     "3.done.0.message.a": {
+      "line": 55,
+      "what": "Call std.string.Concat"
+     },
+     "3.done.0.message.a.a": {
+      "line": 56,
+      "what": "Convert"
+     },
+     "3.done.0.message.a.a.value": {
+      "line": 57,
+      "what": "ArrayLength"
+     },
+     "3.done.0.message.b": {
+      "line": 63,
+      "what": "Convert"
+     },
+     "3.done.0.message.b.value": {
+      "line": 64,
+      "what": "GetLocal total"
+     },
+     "3.each.0": {
+      "line": 30,
+      "what": "Call host.Log"
+     },
+     "3.each.0.message": {
+      "line": 31,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.message.a": {
+      "line": 32,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.message.a.a": {
+      "line": 33,
+      "what": "Call std.string.Concat"
+     },
+     "3.each.0.message.a.a.b": {
+      "line": 35,
+      "what": "Convert"
+     },
+     "3.each.0.message.b": {
+      "line": 41,
+      "what": "Convert"
+     },
+     "3.each.1": {
+      "line": 46,
+      "what": "SetLocal total"
+     },
+     "3.each.1.value": {
+      "line": 47,
+      "what": "Add"
+     },
+     "3.each.1.value.a": {
+      "line": 48,
+      "what": "GetLocal total"
+     },
+     "list": {
+      "line": 12,
+      "what": "GetLocal scores"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Item 0 is 12",
+    "Item 1 is 30",
+    "Item 2 is 7",
+    "Item 3 is 25",
+    "4 scores, total 74"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/08_structs.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 24,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 25,
+      "what": "SetLocal pet"
+     },
+     "1.value": {
+      "line": 27,
+      "what": "MakeStruct Pet"
+     },
+     "2": {
+      "line": 31,
+      "what": "Call Show"
+     },
+     "2.p": {
+      "line": 32,
+      "what": "GetLocal pet"
+     },
+     "3": {
+      "line": 34,
+      "what": "SetLocal pet"
+     },
+     "3.value": {
+      "line": 36,
+      "what": "WithField Pet.mood"
+     },
+     "3.value.obj": {
+      "line": 37,
+      "what": "GetLocal pet"
+     },
+     "4": {
+      "line": 41,
+      "what": "Call Show"
+     },
+     "4.p": {
+      "line": 42,
+      "what": "GetLocal pet"
+     }
+    },
+    "Show": {
+     "0": {
+      "line": 52,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 54,
+      "what": "Switch"
+     },
+     "1.case[0].0": {
+      "line": 57,
+      "what": "Call host.Log"
+     },
+     "1.case[0].0.message": {
+      "line": 58,
+      "what": "Call std.string.Concat"
+     },
+     "1.case[1].0": {
+      "line": 64,
+      "what": "Call host.Log"
+     },
+     "1.case[1].0.message": {
+      "line": 65,
+      "what": "Call std.string.Concat"
+     },
+     "1.default.0": {
+      "line": 71,
+      "what": "Call host.Log"
+     },
+     "1.default.0.message": {
+      "line": 72,
+      "what": "Call std.string.Concat"
+     },
+     "parts": {
+      "line": 48,
+      "what": "BreakStruct Pet"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Rex is happy.",
+    "Rex is hungry."
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 24,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 25,
+      "what": "SetLocal pet"
+     },
+     "1.value": {
+      "line": 27,
+      "what": "MakeStruct Pet"
+     },
+     "2": {
+      "line": 31,
+      "what": "Call Show"
+     },
+     "2.p": {
+      "line": 32,
+      "what": "GetLocal pet"
+     },
+     "3": {
+      "line": 34,
+      "what": "SetLocal pet"
+     },
+     "3.value": {
+      "line": 36,
+      "what": "WithField Pet.mood"
+     },
+     "3.value.obj": {
+      "line": 37,
+      "what": "GetLocal pet"
+     },
+     "4": {
+      "line": 41,
+      "what": "Call Show"
+     },
+     "4.p": {
+      "line": 42,
+      "what": "GetLocal pet"
+     }
+    },
+    "Show": {
+     "0": {
+      "line": 52,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 54,
+      "what": "Switch"
+     },
+     "1.case[0].0": {
+      "line": 57,
+      "what": "Call host.Log"
+     },
+     "1.case[0].0.message": {
+      "line": 58,
+      "what": "Call std.string.Concat"
+     },
+     "1.case[1].0": {
+      "line": 64,
+      "what": "Call host.Log"
+     },
+     "1.case[1].0.message": {
+      "line": 65,
+      "what": "Call std.string.Concat"
+     },
+     "1.default.0": {
+      "line": 71,
+      "what": "Call host.Log"
+     },
+     "1.default.0.message": {
+      "line": 72,
+      "what": "Call std.string.Concat"
+     },
+     "parts": {
+      "line": 48,
+      "what": "BreakStruct Pet"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Rex is happy.",
+    "Rex is hungry."
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/09_maps.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 13,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 14,
+      "what": "Macro std.flow.ForEach"
+     },
+     "1.array": {
+      "line": 15,
+      "what": "MakeArray"
+     },
+     "1.done.0": {
+      "line": 35,
+      "what": "Macro std.flow.ForEachMap"
+     },
+     "1.done.0.done.0": {
+      "line": 50,
+      "what": "Call host.Log"
+     },
+     "1.done.0.done.0.message": {
+      "line": 51,
+      "what": "Call std.string.Concat"
+     },
+     "1.done.0.done.0.message.a": {
+      "line": 52,
+      "what": "Convert"
+     },
+     "1.done.0.done.0.message.a.value": {
+      "line": 53,
+      "what": "MapLength"
+     },
+     "1.done.0.each.0": {
+      "line": 38,
+      "what": "Call host.Log"
+     },
+     "1.done.0.each.0.message": {
+      "line": 39,
+      "what": "Call std.string.Concat"
+     },
+     "1.done.0.each.0.message.a": {
+      "line": 40,
+      "what": "Call std.string.Concat"
+     },
+     "1.done.0.each.0.message.b": {
+      "line": 44,
+      "what": "Convert"
+     },
+     "1.each.0": {
+      "line": 23,
+      "what": "MapSet counts"
+     },
+     "1.each.0.value": {
+      "line": 25,
+      "what": "Add"
+     },
+     "1.each.0.value.a": {
+      "line": 26,
+      "what": "MapFind"
+     },
+     "got": {
+      "line": 11,
+      "what": "GetLocal counts"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "apple: 2",
+    "pear: 1",
+    "kiwi: 1",
+    "3 different fruits"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 13,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 14,
+      "what": "Macro std.flow.ForEach"
+     },
+     "1.array": {
+      "line": 15,
+      "what": "MakeArray"
+     },
+     "1.done.0": {
+      "line": 35,
+      "what": "Macro std.flow.ForEachMap"
+     },
+     "1.done.0.done.0": {
+      "line": 50,
+      "what": "Call host.Log"
+     },
+     "1.done.0.done.0.message": {
+      "line": 51,
+      "what": "Call std.string.Concat"
+     },
+     "1.done.0.done.0.message.a": {
+      "line": 52,
+      "what": "Convert"
+     },
+     "1.done.0.done.0.message.a.value": {
+      "line": 53,
+      "what": "MapLength"
+     },
+     "1.done.0.each.0": {
+      "line": 38,
+      "what": "Call host.Log"
+     },
+     "1.done.0.each.0.message": {
+      "line": 39,
+      "what": "Call std.string.Concat"
+     },
+     "1.done.0.each.0.message.a": {
+      "line": 40,
+      "what": "Call std.string.Concat"
+     },
+     "1.done.0.each.0.message.b": {
+      "line": 44,
+      "what": "Convert"
+     },
+     "1.each.0": {
+      "line": 23,
+      "what": "MapSet counts"
+     },
+     "1.each.0.value": {
+      "line": 25,
+      "what": "Add"
+     },
+     "1.each.0.value.a": {
+      "line": 26,
+      "what": "MapFind"
+     },
+     "got": {
+      "line": 11,
+      "what": "GetLocal counts"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "apple: 2",
+    "pear: 1",
+    "kiwi: 1",
+    "3 different fruits"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/10_errors.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "CheckAge": {
+     "0": {
+      "line": 8,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 9,
+      "what": "Branch"
+     },
+     "1.cond": {
+      "line": 10,
+      "what": "Lt"
+     },
+     "1.then.0": {
+      "line": 15,
+      "what": "Throw"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 30,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 32,
+      "what": "Try"
+     },
+     "1.body.1": {
+      "line": 34,
+      "what": "Call host.Log"
+     },
+     "1.body.1.message": {
+      "line": 35,
+      "what": "Call std.string.Concat"
+     },
+     "1.body.1.message.b": {
+      "line": 37,
+      "what": "Convert"
+     },
+     "1.body.2": {
+      "line": 42,
+      "what": "Call Share"
+     },
+     "1.body.3": {
+      "line": 46,
+      "what": "Call host.Log"
+     },
+     "1.fault.0": {
+      "line": 50,
+      "what": "Call host.Log"
+     },
+     "1.fault.0.message": {
+      "line": 51,
+      "what": "Call std.string.Concat"
+     },
+     "1.then.0": {
+      "line": 57,
+      "what": "Try"
+     },
+     "1.then.0.body.0": {
+      "line": 58,
+      "what": "Call CheckAge"
+     },
+     "1.then.0.body.1": {
+      "line": 61,
+      "what": "Call host.Log"
+     },
+     "1.then.0.fault.0": {
+      "line": 65,
+      "what": "Call host.Log"
+     },
+     "1.then.0.fault.0.message": {
+      "line": 66,
+      "what": "Call std.string.Concat"
+     },
+     "1.then.1": {
+      "line": 72,
+      "what": "Call host.Log"
+     },
+     "good": {
+      "line": 25,
+      "what": "Call Share"
+     }
+    },
+    "Share": {
+     "0": {
+      "line": 80,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 81,
+      "what": "Return"
+     },
+     "1.each": {
+      "line": 82,
+      "what": "Div"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Each gets 3",
+    "Oops: integer divide by zero",
+    "Oops: An age can't be negative",
+    "Still running!"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "CheckAge": {
+     "0": {
+      "line": 8,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 9,
+      "what": "Branch"
+     },
+     "1.cond": {
+      "line": 10,
+      "what": "Lt"
+     },
+     "1.then.0": {
+      "line": 15,
+      "what": "Throw"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 30,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 32,
+      "what": "Try"
+     },
+     "1.body.1": {
+      "line": 34,
+      "what": "Call host.Log"
+     },
+     "1.body.1.message": {
+      "line": 35,
+      "what": "Call std.string.Concat"
+     },
+     "1.body.1.message.b": {
+      "line": 37,
+      "what": "Convert"
+     },
+     "1.body.2": {
+      "line": 42,
+      "what": "Call Share"
+     },
+     "1.body.3": {
+      "line": 46,
+      "what": "Call host.Log"
+     },
+     "1.fault.0": {
+      "line": 50,
+      "what": "Call host.Log"
+     },
+     "1.fault.0.message": {
+      "line": 51,
+      "what": "Call std.string.Concat"
+     },
+     "1.then.0": {
+      "line": 57,
+      "what": "Try"
+     },
+     "1.then.0.body.0": {
+      "line": 58,
+      "what": "Call CheckAge"
+     },
+     "1.then.0.body.1": {
+      "line": 61,
+      "what": "Call host.Log"
+     },
+     "1.then.0.fault.0": {
+      "line": 65,
+      "what": "Call host.Log"
+     },
+     "1.then.0.fault.0.message": {
+      "line": 66,
+      "what": "Call std.string.Concat"
+     },
+     "1.then.1": {
+      "line": 72,
+      "what": "Call host.Log"
+     },
+     "good": {
+      "line": 25,
+      "what": "Call Share"
+     }
+    },
+    "Share": {
+     "0": {
+      "line": 80,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 81,
+      "what": "Return"
+     },
+     "1.each": {
+      "line": 82,
+      "what": "Div"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Each gets 3",
+    "Oops: integer divide by zero",
+    "Oops: An age can't be negative",
+    "Still running!"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/11_waiting.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 9,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 10,
+      "what": "Macro std.flow.ForRange"
+     },
+     "1.done.0": {
+      "line": 30,
+      "what": "Call host.Log"
+     },
+     "1.each.0": {
+      "line": 14,
+      "what": "Call host.Log"
+     },
+     "1.each.0.message": {
+      "line": 15,
+      "what": "Call std.string.Concat"
+     },
+     "1.each.0.message.a": {
+      "line": 16,
+      "what": "Convert"
+     },
+     "1.each.0.message.a.value": {
+      "line": 17,
+      "what": "Sub"
+     },
+     "1.each.1": {
+      "line": 26,
+      "what": "Delay"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "3...",
+    "2...",
+    "1...",
+    "Go!"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 9,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 10,
+      "what": "Macro std.flow.ForRange"
+     },
+     "1.done.0": {
+      "line": 30,
+      "what": "Call host.Log"
+     },
+     "1.each.0": {
+      "line": 14,
+      "what": "Call host.Log"
+     },
+     "1.each.0.message": {
+      "line": 15,
+      "what": "Call std.string.Concat"
+     },
+     "1.each.0.message.a": {
+      "line": 16,
+      "what": "Convert"
+     },
+     "1.each.0.message.a.value": {
+      "line": 17,
+      "what": "Sub"
+     },
+     "1.each.1": {
+      "line": 26,
+      "what": "Delay"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "3...",
+    "2...",
+    "1...",
+    "Go!"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/12_objects.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Animal.Speak": {
+     "0": {
+      "line": 12,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 13,
+      "what": "Return"
+     },
+     "1.line": {
+      "line": 14,
+      "what": "Call std.string.Concat"
+     },
+     "1.line.a": {
+      "line": 15,
+      "what": "GetField Animal.name"
+     }
+    },
+    "Cat.Speak": {
+     "0": {
+      "line": 28,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 29,
+      "what": "Return"
+     },
+     "1.line": {
+      "line": 30,
+      "what": "Call std.string.Concat"
+     },
+     "1.line.a": {
+      "line": 31,
+      "what": "GetField Cat.name"
+     }
+    },
+    "Dog.Speak": {
+     "0": {
+      "line": 46,
+      "what": "Entry"
+     },
+     "2": {
+      "line": 48,
+      "what": "Return"
+     },
+     "2.line": {
+      "line": 49,
+      "what": "Call std.string.Concat"
+     },
+     "parent": {
+      "line": 44,
+      "what": "CallParent Speak"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 73,
+      "what": "Entry"
+     },
+     "2": {
+      "line": 75,
+      "what": "SetField Animal.name"
+     },
+     "3": {
+      "line": 79,
+      "what": "ArrayAdd pets"
+     },
+     "5": {
+      "line": 83,
+      "what": "SetField Animal.name"
+     },
+     "6": {
+      "line": 87,
+      "what": "ArrayAdd pets"
+     },
+     "8": {
+      "line": 91,
+      "what": "ArrayAdd pets"
+     },
+     "cat": {
+      "line": 62,
+      "what": "New Cat"
+     },
+     "dog": {
+      "line": 63,
+      "what": "New Dog"
+     },
+     "loop": {
+      "line": 65,
+      "what": "Macro std.flow.ForEach"
+     },
+     "loop.array": {
+      "line": 66,
+      "what": "GetLocal pets"
+     },
+     "loop.each.1": {
+      "line": 96,
+      "what": "Call host.Log"
+     },
+     "other": {
+      "line": 64,
+      "what": "New Animal"
+     },
+     "speak": {
+      "line": 69,
+      "what": "Call Animal.Speak"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Rex makes a sound. Woof!",
+    "Tom says Meow.",
+    "An animal makes a sound."
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Animal.Speak": {
+     "0": {
+      "line": 12,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 13,
+      "what": "Return"
+     },
+     "1.line": {
+      "line": 14,
+      "what": "Call std.string.Concat"
+     },
+     "1.line.a": {
+      "line": 15,
+      "what": "GetField Animal.name"
+     }
+    },
+    "Cat.Speak": {
+     "0": {
+      "line": 28,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 29,
+      "what": "Return"
+     },
+     "1.line": {
+      "line": 30,
+      "what": "Call std.string.Concat"
+     },
+     "1.line.a": {
+      "line": 31,
+      "what": "GetField Cat.name"
+     }
+    },
+    "Dog.Speak": {
+     "0": {
+      "line": 46,
+      "what": "Entry"
+     },
+     "2": {
+      "line": 48,
+      "what": "Return"
+     },
+     "2.line": {
+      "line": 49,
+      "what": "Call std.string.Concat"
+     },
+     "parent": {
+      "line": 44,
+      "what": "CallParent Speak"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 73,
+      "what": "Entry"
+     },
+     "2": {
+      "line": 75,
+      "what": "SetField Animal.name"
+     },
+     "3": {
+      "line": 79,
+      "what": "ArrayAdd pets"
+     },
+     "5": {
+      "line": 83,
+      "what": "SetField Animal.name"
+     },
+     "6": {
+      "line": 87,
+      "what": "ArrayAdd pets"
+     },
+     "8": {
+      "line": 91,
+      "what": "ArrayAdd pets"
+     },
+     "cat": {
+      "line": 62,
+      "what": "New Cat"
+     },
+     "dog": {
+      "line": 63,
+      "what": "New Dog"
+     },
+     "loop": {
+      "line": 65,
+      "what": "Macro std.flow.ForEach"
+     },
+     "loop.array": {
+      "line": 66,
+      "what": "GetLocal pets"
+     },
+     "loop.each.1": {
+      "line": 96,
+      "what": "Call host.Log"
+     },
+     "other": {
+      "line": 64,
+      "what": "New Animal"
+     },
+     "speak": {
+      "line": 69,
+      "what": "Call Animal.Speak"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Rex makes a sound. Woof!",
+    "Tom says Meow.",
+    "An animal makes a sound."
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/13_interfaces.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 103,
+      "what": "Entry"
+     },
+     "2": {
+      "line": 105,
+      "what": "ArrayAdd shapes"
+     },
+     "4": {
+      "line": 109,
+      "what": "SetField Rectangle.width"
+     },
+     "5": {
+      "line": 113,
+      "what": "SetField Rectangle.height"
+     },
+     "6": {
+      "line": 117,
+      "what": "ArrayAdd shapes"
+     },
+     "8": {
+      "line": 121,
+      "what": "ArrayAdd shapes"
+     },
+     "area": {
+      "line": 96,
+      "what": "Call Shape.Area"
+     },
+     "loop": {
+      "line": 92,
+      "what": "Macro std.flow.ForEach"
+     },
+     "loop.array": {
+      "line": 93,
+      "what": "GetLocal shapes"
+     },
+     "loop.each.2": {
+      "line": 127,
+      "what": "Call host.Log"
+     },
+     "loop.each.2.message": {
+      "line": 128,
+      "what": "Call std.string.Concat"
+     },
+     "loop.each.2.message.a": {
+      "line": 129,
+      "what": "Call std.string.Concat"
+     },
+     "loop.each.2.message.b": {
+      "line": 133,
+      "what": "Convert"
+     },
+     "name": {
+      "line": 99,
+      "what": "Call Shape.Name"
+     },
+     "rect": {
+      "line": 89,
+      "what": "New Rectangle"
+     },
+     "square": {
+      "line": 90,
+      "what": "New Square"
+     },
+     "tri": {
+      "line": 91,
+      "what": "New Triangle"
+     }
+    },
+    "Rectangle.Area": {
+     "0": {
+      "line": 19,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 20,
+      "what": "Return"
+     },
+     "1.area": {
+      "line": 21,
+      "what": "Mul"
+     },
+     "1.area.a": {
+      "line": 22,
+      "what": "GetField Rectangle.width"
+     },
+     "1.area.b": {
+      "line": 25,
+      "what": "GetField Rectangle.height"
+     }
+    },
+    "Rectangle.Name": {
+     "0": {
+      "line": 34,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 35,
+      "what": "Return"
+     }
+    },
+    "Square.Name": {
+     "0": {
+      "line": 45,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 46,
+      "what": "Return"
+     }
+    },
+    "Triangle.Area": {
+     "0": {
+      "line": 59,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 60,
+      "what": "Return"
+     },
+     "1.area": {
+      "line": 61,
+      "what": "Div"
+     },
+     "1.area.a": {
+      "line": 62,
+      "what": "Mul"
+     },
+     "1.area.a.a": {
+      "line": 63,
+      "what": "GetField Triangle.base"
+     },
+     "1.area.a.b": {
+      "line": 66,
+      "what": "GetField Triangle.height"
+     }
+    },
+    "Triangle.Name": {
+     "0": {
+      "line": 77,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 78,
+      "what": "Return"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Rectangle: area 12",
+    "Square: area 25",
+    "Triangle: area 6"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Main": {
+     "0": {
+      "line": 103,
+      "what": "Entry"
+     },
+     "2": {
+      "line": 105,
+      "what": "ArrayAdd shapes"
+     },
+     "4": {
+      "line": 109,
+      "what": "SetField Rectangle.width"
+     },
+     "5": {
+      "line": 113,
+      "what": "SetField Rectangle.height"
+     },
+     "6": {
+      "line": 117,
+      "what": "ArrayAdd shapes"
+     },
+     "8": {
+      "line": 121,
+      "what": "ArrayAdd shapes"
+     },
+     "area": {
+      "line": 96,
+      "what": "Call Shape.Area"
+     },
+     "loop": {
+      "line": 92,
+      "what": "Macro std.flow.ForEach"
+     },
+     "loop.array": {
+      "line": 93,
+      "what": "GetLocal shapes"
+     },
+     "loop.each.2": {
+      "line": 127,
+      "what": "Call host.Log"
+     },
+     "loop.each.2.message": {
+      "line": 128,
+      "what": "Call std.string.Concat"
+     },
+     "loop.each.2.message.a": {
+      "line": 129,
+      "what": "Call std.string.Concat"
+     },
+     "loop.each.2.message.b": {
+      "line": 133,
+      "what": "Convert"
+     },
+     "name": {
+      "line": 99,
+      "what": "Call Shape.Name"
+     },
+     "rect": {
+      "line": 89,
+      "what": "New Rectangle"
+     },
+     "square": {
+      "line": 90,
+      "what": "New Square"
+     },
+     "tri": {
+      "line": 91,
+      "what": "New Triangle"
+     }
+    },
+    "Rectangle.Area": {
+     "0": {
+      "line": 19,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 20,
+      "what": "Return"
+     },
+     "1.area": {
+      "line": 21,
+      "what": "Mul"
+     },
+     "1.area.a": {
+      "line": 22,
+      "what": "GetField Rectangle.width"
+     },
+     "1.area.b": {
+      "line": 25,
+      "what": "GetField Rectangle.height"
+     }
+    },
+    "Rectangle.Name": {
+     "0": {
+      "line": 34,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 35,
+      "what": "Return"
+     }
+    },
+    "Square.Name": {
+     "0": {
+      "line": 45,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 46,
+      "what": "Return"
+     }
+    },
+    "Triangle.Area": {
+     "0": {
+      "line": 59,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 60,
+      "what": "Return"
+     },
+     "1.area": {
+      "line": 61,
+      "what": "Div"
+     },
+     "1.area.a": {
+      "line": 62,
+      "what": "Mul"
+     },
+     "1.area.a.a": {
+      "line": 63,
+      "what": "GetField Triangle.base"
+     },
+     "1.area.a.b": {
+      "line": 66,
+      "what": "GetField Triangle.height"
+     }
+    },
+    "Triangle.Name": {
+     "0": {
+      "line": 77,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 78,
+      "what": "Return"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Rectangle: area 12",
+    "Square: area 25",
+    "Triangle: area 6"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "lessons/14_events.wiret": {
+  "run": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Announce": {
+     "0": {
+      "line": 49,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 50,
+      "what": "Call host.Log"
+     },
+     "1.message": {
+      "line": 51,
+      "what": "Call std.string.Concat"
+     },
+     "1.message.b": {
+      "line": 53,
+      "what": "Convert"
+     }
+    },
+    "Button.Click": {
+     "0": {
+      "line": 14,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 15,
+      "what": "SetState clicks"
+     },
+     "1.value": {
+      "line": 16,
+      "what": "Add"
+     },
+     "1.value.a": {
+      "line": 17,
+      "what": "GetState clicks"
+     },
+     "2": {
+      "line": 21,
+      "what": "Broadcast Button.OnClick"
+     },
+     "2.times": {
+      "line": 23,
+      "what": "GetState clicks"
+     }
+    },
+    "Counter.Heard": {
+     "0": {
+      "line": 34,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 35,
+      "what": "SetField Counter.heard"
+     },
+     "1.value": {
+      "line": 37,
+      "what": "Add"
+     },
+     "1.value.a": {
+      "line": 38,
+      "what": "GetField Counter.heard"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 67,
+      "what": "Entry"
+     },
+     "3": {
+      "line": 70,
+      "what": "Bind Button.OnClick"
+     },
+     "4": {
+      "line": 74,
+      "what": "Bind Button.OnClick"
+     },
+     "4.handler": {
+      "line": 76,
+      "what": "CreateDelegate Counter.Heard"
+     },
+     "5": {
+      "line": 80,
+      "what": "Call Button.Click"
+     },
+     "6": {
+      "line": 83,
+      "what": "Call Button.Click"
+     },
+     "7": {
+      "line": 87,
+      "what": "Unbind Button.OnClick"
+     },
+     "8": {
+      "line": 91,
+      "what": "Call Button.Click"
+     },
+     "9": {
+      "line": 94,
+      "what": "Call host.Log"
+     },
+     "9.message": {
+      "line": 95,
+      "what": "Call std.string.Concat"
+     },
+     "9.message.b": {
+      "line": 97,
+      "what": "Call std.string.Concat"
+     },
+     "9.message.b.a": {
+      "line": 98,
+      "what": "Convert"
+     },
+     "9.message.b.a.value": {
+      "line": 99,
+      "what": "GetField Counter.heard"
+     },
+     "announce": {
+      "line": 65,
+      "what": "CreateDelegate Announce"
+     },
+     "b": {
+      "line": 63,
+      "what": "New Button"
+     },
+     "c": {
+      "line": 64,
+      "what": "New Counter"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Click number 1",
+    "Click number 2",
+    "The counter heard 3 clicks"
+   ],
+   "result": "(no results)"
+  },
+  "run_det": {
+   "diags": [],
+   "error": null,
+   "explain": null,
+   "fault": null,
+   "nodes": {
+    "Announce": {
+     "0": {
+      "line": 49,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 50,
+      "what": "Call host.Log"
+     },
+     "1.message": {
+      "line": 51,
+      "what": "Call std.string.Concat"
+     },
+     "1.message.b": {
+      "line": 53,
+      "what": "Convert"
+     }
+    },
+    "Button.Click": {
+     "0": {
+      "line": 14,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 15,
+      "what": "SetState clicks"
+     },
+     "1.value": {
+      "line": 16,
+      "what": "Add"
+     },
+     "1.value.a": {
+      "line": 17,
+      "what": "GetState clicks"
+     },
+     "2": {
+      "line": 21,
+      "what": "Broadcast Button.OnClick"
+     },
+     "2.times": {
+      "line": 23,
+      "what": "GetState clicks"
+     }
+    },
+    "Counter.Heard": {
+     "0": {
+      "line": 34,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 35,
+      "what": "SetField Counter.heard"
+     },
+     "1.value": {
+      "line": 37,
+      "what": "Add"
+     },
+     "1.value.a": {
+      "line": 38,
+      "what": "GetField Counter.heard"
+     }
+    },
+    "Main": {
+     "0": {
+      "line": 67,
+      "what": "Entry"
+     },
+     "3": {
+      "line": 70,
+      "what": "Bind Button.OnClick"
+     },
+     "4": {
+      "line": 74,
+      "what": "Bind Button.OnClick"
+     },
+     "4.handler": {
+      "line": 76,
+      "what": "CreateDelegate Counter.Heard"
+     },
+     "5": {
+      "line": 80,
+      "what": "Call Button.Click"
+     },
+     "6": {
+      "line": 83,
+      "what": "Call Button.Click"
+     },
+     "7": {
+      "line": 87,
+      "what": "Unbind Button.OnClick"
+     },
+     "8": {
+      "line": 91,
+      "what": "Call Button.Click"
+     },
+     "9": {
+      "line": 94,
+      "what": "Call host.Log"
+     },
+     "9.message": {
+      "line": 95,
+      "what": "Call std.string.Concat"
+     },
+     "9.message.b": {
+      "line": 97,
+      "what": "Call std.string.Concat"
+     },
+     "9.message.b.a": {
+      "line": 98,
+      "what": "Convert"
+     },
+     "9.message.b.a.value": {
+      "line": 99,
+      "what": "GetField Counter.heard"
+     },
+     "announce": {
+      "line": 65,
+      "what": "CreateDelegate Announce"
+     },
+     "b": {
+      "line": 63,
+      "what": "New Button"
+     },
+     "c": {
+      "line": 64,
+      "what": "New Counter"
+     }
+    }
+   },
+   "ok": true,
+   "output": [
+    "Click number 1",
+    "Click number 2",
+    "The counter heard 3 clicks"
+   ],
+   "result": "(no results)"
+  }
+ },
+ "std/flow.wiret": {
+  "run": {
+   "diags": [],
+   "error": "WR_ERR_LINK: no exported function 'Main'",
+   "explain": "The program uses something the runtime doesn't provide: no exported function 'Main'.",
+   "fault": null,
+   "nodes": {
+    "DoN": {
+     "0": {
+      "line": 11,
+      "what": "Entry"
+     },
+     "0.in.0": {
+      "line": 12,
+      "what": "Branch"
+     },
+     "0.in.0.cond": {
+      "line": 13,
+      "what": "Lt"
+     },
+     "0.in.0.then.0": {
+      "line": 18,
+      "what": "SetState count"
+     },
+     "0.in.0.then.0.value": {
+      "line": 19,
+      "what": "Add"
+     },
+     "0.in.0.then.1": {
+      "line": 24,
+      "what": "Exit out"
+     },
+     "0.reset.0": {
+      "line": 29,
+      "what": "SetState count"
+     },
+     "cur": {
+      "line": 9,
+      "what": "GetState count"
+     }
+    },
+    "DoOnce": {
+     "0": {
+      "line": 39,
+      "what": "Entry"
+     },
+     "0.in.0": {
+      "line": 40,
+      "what": "Branch"
+     },
+     "0.in.0.cond": {
+      "line": 41,
+      "what": "GetState fired"
+     },
+     "0.in.0.else.0": {
+      "line": 43,
+      "what": "SetState fired"
+     },
+     "0.in.0.else.1": {
+      "line": 46,
+      "what": "Exit out"
+     },
+     "0.reset.0": {
+      "line": 49,
+      "what": "SetState fired"
+     }
+    },
+    "FlipFlop": {
+     "0": {
+      "line": 59,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 60,
+      "what": "Branch"
+     },
+     "1.cond": {
+      "line": 61,
+      "what": "GetState on_b"
+     },
+     "1.else.0": {
+      "line": 70,
+      "what": "SetState on_b"
+     },
+     "1.else.1": {
+      "line": 73,
+      "what": "Exit b"
+     },
+     "1.then.0": {
+      "line": 63,
+      "what": "SetState on_b"
+     },
+     "1.then.1": {
+      "line": 66,
+      "what": "Exit a"
+     }
+    },
+    "ForEach": {
+     "0": {
+      "line": 96,
+      "what": "Entry"
+     },
+     "0.break.0": {
+      "line": 118,
+      "what": "Leave done"
+     },
+     "0.in.0": {
+      "line": 97,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 81,
+      "what": "GetLocal i"
+     },
+     "got": {
+      "line": 82,
+      "what": "ArrayGet"
+     },
+     "len": {
+      "line": 86,
+      "what": "ArrayLength"
+     },
+     "test": {
+      "line": 89,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 90,
+      "what": "Lt"
+     },
+     "test.else.0": {
+      "line": 115,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 101,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 102,
+      "what": "Exit each"
+     },
+     "test.then.1": {
+      "line": 107,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 108,
+      "what": "Add"
+     }
+    },
+    "ForEachMap": {
+     "0": {
+      "line": 145,
+      "what": "Entry"
+     },
+     "0.break.0": {
+      "line": 168,
+      "what": "Leave done"
+     },
+     "0.in.0": {
+      "line": 146,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 126,
+      "what": "GetLocal i"
+     },
+     "got_key": {
+      "line": 127,
+      "what": "MapKeyAt"
+     },
+     "got_value": {
+      "line": 131,
+      "what": "MapValueAt"
+     },
+     "len": {
+      "line": 135,
+      "what": "MapLength"
+     },
+     "test": {
+      "line": 138,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 139,
+      "what": "Lt"
+     },
+     "test.else.0": {
+      "line": 165,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 150,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 151,
+      "what": "Exit each"
+     },
+     "test.then.1": {
+      "line": 157,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 158,
+      "what": "Add"
+     }
+    },
+    "ForRange": {
+     "0": {
+      "line": 184,
+      "what": "Entry"
+     },
+     "0.break.0": {
+      "line": 205,
+      "what": "Leave done"
+     },
+     "0.in.0": {
+      "line": 185,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 176,
+      "what": "GetLocal i"
+     },
+     "test": {
+      "line": 177,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 178,
+      "what": "Le"
+     },
+     "test.else.0": {
+      "line": 202,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 189,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 190,
+      "what": "Exit each"
+     },
+     "test.then.1": {
+      "line": 194,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 195,
+      "what": "Add"
+     }
+    },
+    "Repeat": {
+     "0": {
+      "line": 221,
+      "what": "Entry"
+     },
+     "0.break.0": {
+      "line": 242,
+      "what": "Leave done"
+     },
+     "0.in.0": {
+      "line": 222,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 213,
+      "what": "GetLocal i"
+     },
+     "test": {
+      "line": 214,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 215,
+      "what": "Lt"
+     },
+     "test.else.0": {
+      "line": 239,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 226,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 227,
+      "what": "Exit body"
+     },
+     "test.then.1": {
+      "line": 231,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 232,
+      "what": "Add"
+     }
+    }
+   },
+   "ok": false,
+   "output": [],
+   "result": null
+  },
+  "run_det": {
+   "diags": [],
+   "error": "WR_ERR_LINK: no exported function 'Main'",
+   "explain": "The program uses something the runtime doesn't provide: no exported function 'Main'.",
+   "fault": null,
+   "nodes": {
+    "DoN": {
+     "0": {
+      "line": 11,
+      "what": "Entry"
+     },
+     "0.in.0": {
+      "line": 12,
+      "what": "Branch"
+     },
+     "0.in.0.cond": {
+      "line": 13,
+      "what": "Lt"
+     },
+     "0.in.0.then.0": {
+      "line": 18,
+      "what": "SetState count"
+     },
+     "0.in.0.then.0.value": {
+      "line": 19,
+      "what": "Add"
+     },
+     "0.in.0.then.1": {
+      "line": 24,
+      "what": "Exit out"
+     },
+     "0.reset.0": {
+      "line": 29,
+      "what": "SetState count"
+     },
+     "cur": {
+      "line": 9,
+      "what": "GetState count"
+     }
+    },
+    "DoOnce": {
+     "0": {
+      "line": 39,
+      "what": "Entry"
+     },
+     "0.in.0": {
+      "line": 40,
+      "what": "Branch"
+     },
+     "0.in.0.cond": {
+      "line": 41,
+      "what": "GetState fired"
+     },
+     "0.in.0.else.0": {
+      "line": 43,
+      "what": "SetState fired"
+     },
+     "0.in.0.else.1": {
+      "line": 46,
+      "what": "Exit out"
+     },
+     "0.reset.0": {
+      "line": 49,
+      "what": "SetState fired"
+     }
+    },
+    "FlipFlop": {
+     "0": {
+      "line": 59,
+      "what": "Entry"
+     },
+     "1": {
+      "line": 60,
+      "what": "Branch"
+     },
+     "1.cond": {
+      "line": 61,
+      "what": "GetState on_b"
+     },
+     "1.else.0": {
+      "line": 70,
+      "what": "SetState on_b"
+     },
+     "1.else.1": {
+      "line": 73,
+      "what": "Exit b"
+     },
+     "1.then.0": {
+      "line": 63,
+      "what": "SetState on_b"
+     },
+     "1.then.1": {
+      "line": 66,
+      "what": "Exit a"
+     }
+    },
+    "ForEach": {
+     "0": {
+      "line": 96,
+      "what": "Entry"
+     },
+     "0.break.0": {
+      "line": 118,
+      "what": "Leave done"
+     },
+     "0.in.0": {
+      "line": 97,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 81,
+      "what": "GetLocal i"
+     },
+     "got": {
+      "line": 82,
+      "what": "ArrayGet"
+     },
+     "len": {
+      "line": 86,
+      "what": "ArrayLength"
+     },
+     "test": {
+      "line": 89,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 90,
+      "what": "Lt"
+     },
+     "test.else.0": {
+      "line": 115,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 101,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 102,
+      "what": "Exit each"
+     },
+     "test.then.1": {
+      "line": 107,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 108,
+      "what": "Add"
+     }
+    },
+    "ForEachMap": {
+     "0": {
+      "line": 145,
+      "what": "Entry"
+     },
+     "0.break.0": {
+      "line": 168,
+      "what": "Leave done"
+     },
+     "0.in.0": {
+      "line": 146,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 126,
+      "what": "GetLocal i"
+     },
+     "got_key": {
+      "line": 127,
+      "what": "MapKeyAt"
+     },
+     "got_value": {
+      "line": 131,
+      "what": "MapValueAt"
+     },
+     "len": {
+      "line": 135,
+      "what": "MapLength"
+     },
+     "test": {
+      "line": 138,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 139,
+      "what": "Lt"
+     },
+     "test.else.0": {
+      "line": 165,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 150,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 151,
+      "what": "Exit each"
+     },
+     "test.then.1": {
+      "line": 157,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 158,
+      "what": "Add"
+     }
+    },
+    "ForRange": {
+     "0": {
+      "line": 184,
+      "what": "Entry"
+     },
+     "0.break.0": {
+      "line": 205,
+      "what": "Leave done"
+     },
+     "0.in.0": {
+      "line": 185,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 176,
+      "what": "GetLocal i"
+     },
+     "test": {
+      "line": 177,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 178,
+      "what": "Le"
+     },
+     "test.else.0": {
+      "line": 202,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 189,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 190,
+      "what": "Exit each"
+     },
+     "test.then.1": {
+      "line": 194,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 195,
+      "what": "Add"
+     }
+    },
+    "Repeat": {
+     "0": {
+      "line": 221,
+      "what": "Entry"
+     },
+     "0.break.0": {
+      "line": 242,
+      "what": "Leave done"
+     },
+     "0.in.0": {
+      "line": 222,
+      "what": "SetLocal i"
+     },
+     "cur": {
+      "line": 213,
+      "what": "GetLocal i"
+     },
+     "test": {
+      "line": 214,
+      "what": "Branch"
+     },
+     "test.cond": {
+      "line": 215,
+      "what": "Lt"
+     },
+     "test.else.0": {
+      "line": 239,
+      "what": "Exit done"
+     },
+     "test.then.0": {
+      "line": 226,
+      "what": "Sequence"
+     },
+     "test.then.0.then[0].0": {
+      "line": 227,
+      "what": "Exit body"
+     },
+     "test.then.1": {
+      "line": 231,
+      "what": "SetLocal i"
+     },
+     "test.then.1.value": {
+      "line": 232,
+      "what": "Add"
+     }
+    }
+   },
+   "ok": false,
+   "output": [],
+   "result": null
+  }
+ }
+}

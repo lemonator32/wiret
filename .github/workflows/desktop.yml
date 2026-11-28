@@ -1,0 +1,59 @@
+# Builds the Wiret desktop app (Tauri) for Windows, macOS and Linux. Tauri does not
+# cross-compile, so each OS builds its own. Run it by hand (Actions → Desktop → Run workflow)
+# or push a tag such as v0.12.0; the installers are attached to the run as artifacts.
+name: Desktop
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+          - os: macos-latest
+          - os: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Linux libraries for the webview
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install the app's dependencies
+        run: npm ci
+
+      - name: Build the desktop app
+        run: npx tauri build
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: wiret-${{ runner.os }}
+          path: |
+            src-tauri/target/release/bundle/**/*.msi
+            src-tauri/target/release/bundle/**/*-setup.exe
+            src-tauri/target/release/bundle/**/*.dmg
+            src-tauri/target/release/bundle/**/*.deb
+            src-tauri/target/release/bundle/**/*.AppImage
+            src-tauri/target/release/bundle/**/*.rpm
+          if-no-files-found: error

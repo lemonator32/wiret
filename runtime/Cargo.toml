@@ -1,0 +1,28 @@
+[package]
+name = "wiret-runtime"
+version = "0.12.0"
+description = "The Wiret bytecode (WBC 1) runtime: decoder, verifier and VM, for embedding in hosts and game engines"
+edition = "2021"
+rust-version = "1.77"
+license-file = "../LICENSE"
+
+[lib]
+name = "wiret_runtime"
+# rlib for Rust hosts (the Tauri app, engines written in Rust); cdylib for the WebAssembly
+# build the web editor loads (see src/wasm.rs)
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+indexmap = "2"
+libm = "0.2"
+num-bigint = "0.4"
+num-integer = "0.1"
+num-traits = "0.2"
+serde_json = { version = "1", features = ["preserve_order"] }
+sha2 = "0.10"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"

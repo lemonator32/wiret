@@ -187,10 +187,10 @@ Some faults cannot be caught: fuel exhausted, memory limit exceeded, and a fiber
 | `W0203` | An `enum` is marked `@export`. An enum is its underlying integer type in WBC and has no type entry, so it is not exported (section 5.2). |
 | `W0301` | Node unreachable from any entry: a disabled `!` statement (section 2.3). |
 | `W0302` | Chain can end in a function that declares results. |
-| `W0603` | `wiretc fmt` would drop a `//` comment (section 2.1). |
+| `W0603` | `wiret fmt` would drop a `//` comment (section 2.1). |
 | `W0604` | A `@note` is detached: its target was deleted and the note was moved to the enclosing graph (section 2.4). |
 
-Diagnostics are structured records, not only text: `code`, `severity`, `message`, `module`, `graph`, `node` and `pin`. `wiretc check --json` prints one record per line. An editor uses `node` and `pin` to highlight the exact place on the graph, and an LLM agent feeds the records back to itself until the check is clean (section 7.2). Diagnostics that arise inside an expanded macro carry the path-style node id (section 4.4).
+Diagnostics are structured records, not only text: `code`, `severity`, `message`, `module`, `graph`, `node` and `pin`. `wiret check --json` prints one record per line. An editor uses `node` and `pin` to highlight the exact place on the graph, and an LLM agent feeds the records back to itself until the check is clean (section 7.2). Diagnostics that arise inside an expanded macro carry the path-style node id (section 4.4).
 
 ### 4.8 Lowering a graph to bytecode
 
@@ -253,4 +253,4 @@ Excluded from the guarantee:
 
 The claim of identical results on every platform is a **target** until the conformance suite (section 7.4) passes the same golden traces on at least two CPU architectures and two compilers.
 
-**Recording and replay.** In the prototype, the input log is a list of JSON entries, one per host API call: the call, its arguments (floats as exact hex, objects, signals, fibers and modules as handles numbered in order of first appearance), and what it gave (the result or fault, the instructions executed, the fuel left and the lines printed). A replay runs the entries on a new deterministic VM and stops at the first entry that differs. Recording the outcomes as well as the inputs makes a log its own test: `wiretc replay` checks a recorded run without the original host.
+**Recording and replay.** In the prototype, the input log is a list of JSON entries, one per host API call: the call, its arguments (floats as exact hex, objects, signals, fibers and modules as handles numbered in order of first appearance), and what it gave (the result or fault, the instructions executed, the fuel left and the lines printed). A replay runs the entries on a new deterministic VM and stops at the first entry that differs. Recording the outcomes as well as the inputs makes a log its own test: `wiret replay` checks a recorded run without the original host.
